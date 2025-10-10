@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Thanh toán - 36 Store</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="container mt-5">
+        <h2 class="text-center">Thanh toán</h2>
+
+        <table class="table table-bordered text-center">
+            <thead>
+            <tr>
+                <th>Ảnh</th>
+                <th>Tên sản phẩm</th>
+                <th>Giá</th>
+                <th>Số lượng</th>
+                <th>Thành tiền</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="cartItem : ${cartItems}">
+                <td><img th:src="${cartItem.product.imageUrl}" width="50"></td>
+                <td th:text="${cartItem.product.name}"></td>
+                <td th:text="${cartItem.product.price} + ' VNĐ'"></td>
+                <td th:text="${cartItem.quantity}"></td>
+                <td th:text="${cartItem.product.price * cartItem.quantity} + ' VNĐ'"></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h4 class="text-end">Tổng tiền: <span th:text="${totalPrice} + ' VNĐ'"></span></h4>
+
+        <form th:action="@{/checkout/process}" method="post" class="mt-4">
+            <div class="mb-3">
+                <label for="name" class="form-label">Họ và tên:</label>
+                <input type="text" id="name" name="name" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="address" class="form-label">Địa chỉ giao hàng:</label>
+                <input type="text" id="address" name="address" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="phone" class="form-label">Số điện thoại:</label>
+                <input type="text" id="phone" name="phone" class="form-control" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Xác nhận thanh toán</button>
+        </form>
+
+        <div class="text-center mt-3">
+            <a th:href="@{/cart}" class="btn btn-secondary">Quay lại giỏ hàng</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

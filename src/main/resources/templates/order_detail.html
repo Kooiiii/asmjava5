@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Chi tiết đơn hàng - 36 Store</title>
+    <style>
+        .order-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .order-items img {
+            width: 80px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Chi tiết đơn hàng</h2>
+
+        <!-- Thông tin đơn hàng -->
+        <div class="order-card mb-4">
+            <h5>Mã đơn hàng: <span th:text="${order.id}"></span></h5>
+            <p><strong>Người đặt:</strong> <span th:text="${order.user.fullName}"></span></p>
+            <p><strong>Trạng thái:</strong> <span th:text="${order.status}"></span></p>
+            <p><strong>Tổng tiền:</strong> <span class="text-danger fw-bold" th:text="${order.totalPrice} + ' VNĐ'"></span></p>
+            <p><strong>Ngày đặt:</strong> <span th:text="${#dates.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></span></p>
+        </div>
+
+        <!-- Danh sách sản phẩm -->
+        <div class="order-card">
+            <h5 class="mb-3">Sản phẩm trong đơn</h5>
+            <table class="table table-bordered text-center order-items">
+                <thead class="table-dark">
+                <tr>
+                    <th>Hình ảnh</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Số lượng</th>
+                    <th>Giá</th>
+                    <th>Thành tiền</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${order.items}">
+                    <td><img th:src="${item.product.imageUrl}" alt="SP"></td>
+                    <td th:text="${item.product.name}"></td>
+                    <td th:text="${item.quantity}"></td>
+                    <td th:text="${item.product.price} + ' VNĐ'"></td>
+                    <td th:text="${item.quantity * item.product.price} + ' VNĐ'"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Nút quay lại -->
+        <div class="mt-4 text-center">
+            <a href="/orders" class="btn btn-secondary">
+                <i class="fa-solid fa-arrow-left"></i> Quay lại danh sách
+            </a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

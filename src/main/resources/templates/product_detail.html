@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="${product.name} + ' - Duc Long Store'">Chi tiết sản phẩm</title>
+    <style>
+        .product-image { max-width: 100%; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+        .product-info { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
+        .btn-custom { background-color: #ff5733; color: white; transition: 0.3s; }
+        .btn-custom:hover { background-color: #e64a19; transform: scale(1.05); }
+    </style>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="container mt-5">
+        <div class="row">
+            <!-- Ảnh sản phẩm -->
+            <div class="col-md-6">
+                <img th:src="${product.imageUrl}" class="product-image img-fluid" alt="Sản phẩm">
+            </div>
+
+            <!-- Thông tin sản phẩm -->
+            <div class="col-md-6">
+                <div class="product-info p-4">
+                    <h2 class="fw-bold" th:text="${product.name}"></h2>
+                    <p class="text-muted" th:text="${product.description}"></p>
+                    <h4 class="text-danger fw-bold" th:text="'Giá: ' + ${product.price} + ' VNĐ'"></h4>
+
+                    <!-- Nút Thêm vào giỏ hàng -->
+                    <form th:action="@{/cart/add/{id}/{quantity}(id=${product.id}, quantity=${1})}" method="get"
+                          onsubmit="this.action=this.action.replace('${1}', this.querySelector('input[name=quantity]').value)">
+                        <div class="d-flex align-items-center mb-3">
+                            <label for="quantity" class="me-2 fw-semibold">Số lượng:</label>
+                            <input type="number" id="quantity" name="quantity" value="1" min="1" class="form-control w-25">
+                        </div>
+                        <button type="submit" class="btn btn-custom px-4 py-2">
+                            <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ hàng
+                        </button>
+                    </form>
+
+                    <!-- Nút Quay lại -->
+                    <a href="/products" class="btn btn-outline-secondary mt-3">
+                        <i class="fa-solid fa-arrow-left"></i> Quay lại
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

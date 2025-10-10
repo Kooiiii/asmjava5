@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Thông tin cá nhân - 36 Store</title>
+    <style>
+        .profile-container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #fff;
+            margin-bottom: 15px;
+        }
+        .btn-custom {
+            background-color: #FF5733;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        .btn-custom:hover {
+            background-color: #e64a19;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="container mt-5 d-flex justify-content-center">
+        <div class="profile-container">
+            <h2 class="fw-bold mb-3"><i class="fa-solid fa-user"></i> Hồ sơ cá nhân</h2>
+
+            <h4 th:text="${user.fullName}"></h4>
+            <p class="text-muted">@<span th:text="${user.username}"></span></p>
+
+            <p><strong>Email:</strong> <span th:text="${user.email}"></span></p>
+            <p><strong>Số điện thoại:</strong> <span th:text="${user.phone}"></span></p>
+            <p><strong>Địa chỉ:</strong> <span th:text="${user.address}"></span></p>
+            <p><strong>Quyền hạn:</strong>
+                <span class="badge bg-success" th:if="${user.role == 'ADMIN'}">Admin</span>
+                <span class="badge bg-primary" th:if="${user.role == 'USER'}">Người dùng</span>
+                <span class="badge bg-warning" th:if="${user.role == 'MODERATOR'}">Kiểm duyệt viên</span>
+            </p>
+
+            <div class="mt-3">
+                <a href="/" class="btn btn-secondary">Quay lại</a>
+                <a href="/profile/edit" class="btn btn-custom">Chỉnh sửa</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

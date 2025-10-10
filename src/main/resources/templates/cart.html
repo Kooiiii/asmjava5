@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Giỏ hàng - 36 Store</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Giỏ hàng</h2>
+
+        <!-- Nếu giỏ hàng trống -->
+        <div th:if="${#lists.isEmpty(cartItems)}" class="text-center">
+            <p class="text-muted">Giỏ hàng của bạn đang trống.</p>
+            <a th:href="@{/products}" class="btn btn-primary">Tiếp tục mua sắm</a>
+        </div>
+
+        <!-- Nếu có sản phẩm -->
+        <div th:if="${not #lists.isEmpty(cartItems)}">
+            <table class="table table-bordered text-center align-middle">
+                <thead class="table-dark">
+                <tr>
+                    <th>Ảnh</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Giá</th>
+                    <th>Số lượng</th>
+                    <th>Thành tiền</th>
+                    <th>Hành động</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="cartItem : ${cartItems}">
+                    <td><img th:src="${cartItem.product.imageUrl}" width="60" class="rounded"></td>
+                    <td th:text="${cartItem.product.name}"></td>
+                    <td th:text="${cartItem.product.price} + ' VNĐ'"></td>
+                    <td th:text="${cartItem.quantity}"></td>
+                    <td th:text="${cartItem.product.price * cartItem.quantity} + ' VNĐ'"></td>
+                    <td>
+                        <a th:href="@{/cart/remove/{id}(id=${cartItem.product.id})}"
+                           class="btn btn-danger btn-sm">Xóa</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <h4 class="text-end text-danger fw-bold">
+                Tổng tiền: <span th:text="${totalPrice} + ' VNĐ'"></span>
+            </h4>
+
+            <div class="d-flex justify-content-between mt-3">
+                <a th:href="@{/products}" class="btn btn-secondary">Tiếp tục mua sắm</a>
+                <a th:href="@{/cart/clear}" class="btn btn-danger">Xóa toàn bộ</a>
+                <a th:href="@{/checkout}" class="btn btn-success">Thanh toán</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

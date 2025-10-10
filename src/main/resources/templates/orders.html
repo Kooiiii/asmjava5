@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Đơn Hàng - 36 Store</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="container mt-5">
+        <h2 class="text-center">Danh Sách Đơn Hàng</h2>
+        <table class="table table-hover text-center">
+            <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Người Đặt</th>
+                <th>Tổng Giá</th>
+                <th>Trạng Thái</th>
+                <th>Hành Động</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="order : ${orders}">
+                <td th:text="${order.id}"></td>
+                <td th:text="${order.user.fullName}"></td>
+                <td th:text="${order.totalPrice} + ' VNĐ'"></td>
+                <td th:text="${order.status}"></td>
+                <td>
+                    <a th:href="@{/orders/{id}(id=${order.id})}" class="btn btn-info btn-sm">Xem</a>
+                    <a th:href="@{/orders/delete/{id}(id=${order.id})}" class="btn btn-danger btn-sm">Hủy</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

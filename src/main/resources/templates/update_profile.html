@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Chỉnh sửa hồ sơ - 36 Store</title>
+    <style>
+        .edit-card {
+            max-width: 500px;
+            border-radius: 15px;
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+            background: #fff;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="container mt-5">
+        <h2 class="text-center mb-4 fw-bold text-dark">Chỉnh sửa hồ sơ</h2>
+        <div class="card mx-auto edit-card">
+            <div class="card-body">
+                <form th:action="@{/profile/update}" th:object="${user}" method="post">
+                    <input type="hidden" th:field="*{id}" />
+
+                    <div class="mb-3">
+                        <label class="form-label">Tên đăng nhập</label>
+                        <input type="text" class="form-control" th:field="*{username}" readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Họ và tên</label>
+                        <input type="text" class="form-control" th:field="*{fullName}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" th:field="*{email}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Số điện thoại</label>
+                        <input type="text" class="form-control" th:field="*{phone}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Địa chỉ</label>
+                        <input type="text" class="form-control" th:field="*{address}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Quyền hạn</label>
+                        <input type="text" class="form-control" th:field="*{role}" disabled>
+                    </div>
+
+                    <div class="text-center">
+                        <a href="/profile" class="btn btn-secondary">Hủy</a>
+                        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                    </div>
+                </form>
+
+                <div class="text-center mt-3">
+                    <a href="/profile/change-password" class="btn btn-warning">
+                        <i class="fa-solid fa-key"></i> Đổi mật khẩu
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

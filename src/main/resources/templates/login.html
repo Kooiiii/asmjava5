@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Đăng nhập - 36 Store</title>
+    <style>
+        .auth-container {
+            min-height: calc(100vh - 200px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: url('https://source.unsplash.com/1600x900/?fashion,shopping') center/cover no-repeat;
+            position: relative;
+            padding: 20px 0;
+        }
+        .auth-container::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 0;
+        }
+        .login-container {
+            position: relative;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 450px;
+            z-index: 1;
+            margin: 20px;
+        }
+        .btn-custom {
+            background-color: #ff5733;
+            color: white;
+            border-radius: 30px;
+            font-size: 1rem;
+            padding: 12px;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        .btn-custom:hover {
+            background-color: #e64a19;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(230, 74, 25, 0.3);
+        }
+        .form-control {
+            border-radius: 10px;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus {
+            border-color: #ff5733;
+            box-shadow: 0 0 0 0.2rem rgba(255, 87, 51, 0.25);
+        }
+        a {
+            color: #ff5733;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        a:hover {
+            color: #e64a19;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="auth-container">
+        <div class="login-container text-center">
+            <h2 class="fw-bold mb-4 text-dark"><i class="fa-solid fa-user-circle me-2"></i> Đăng nhập</h2>
+            <p class="text-muted mb-4">Chào mừng bạn đến với <strong class="text-dark">Duc Long Store</strong></p>
+
+            <form th:action="@{/login}" method="post">
+                <div class="mb-3 text-start">
+                    <label for="username" class="form-label"><i class="fa-solid fa-user me-2"></i>Tên đăng nhập</label>
+                    <input type="text" id="username" name="username" class="form-control"
+                           placeholder="Nhập tên đăng nhập" required autofocus>
+                </div>
+
+                <div class="mb-4 text-start">
+                    <label for="password" class="form-label"><i class="fa-solid fa-lock me-2"></i>Mật khẩu</label>
+                    <input type="password" id="password" name="password" class="form-control"
+                           placeholder="Nhập mật khẩu" required>
+                </div>
+
+                <button type="submit" class="btn btn-custom w-100 mb-3">
+                    <i class="fa-solid fa-sign-in-alt me-2"></i> Đăng nhập
+                </button>
+            </form>
+
+            <div class="mt-4 pt-3 border-top">
+                <p class="mb-2">Chưa có tài khoản?
+                    <a href="/sign-up" class="fw-bold">Đăng ký ngay</a>
+                </p>
+                <p class="mb-0">
+                    <a href="/forgot-password" class="fw-bold">
+                        <i class="fa-solid fa-key me-1"></i>Quên mật khẩu?
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

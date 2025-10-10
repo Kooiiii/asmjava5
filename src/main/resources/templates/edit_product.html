@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Chỉnh Sửa Sản Phẩm - 36 Store</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Chỉnh Sửa Sản Phẩm</h2>
+        <form th:action="@{/products/update}" method="post" th:object="${product}" class="mx-auto" style="max-width: 600px;">
+            <input type="hidden" th:field="*{id}">
+
+            <div class="mb-3">
+                <label class="form-label">Tên sản phẩm</label>
+                <input type="text" class="form-control" th:field="*{name}" required>
+                <div class="text-danger mt-1" th:if="${#fields.hasErrors('name')}">
+                    <small th:each="err : ${#fields.errors('name')}" th:text="${err}"></small>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Mô tả</label>
+                <textarea class="form-control" th:field="*{description}" rows="3" required></textarea>
+                <div class="text-danger mt-1" th:if="${#fields.hasErrors('description')}">
+                    <small th:each="err : ${#fields.errors('description')}" th:text="${err}"></small>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Giá</label>
+                <input type="number" class="form-control" th:field="*{price}" step="1" min="0" required>
+                <div class="text-danger mt-1" th:if="${#fields.hasErrors('price')}">
+                    <small th:each="err : ${#fields.errors('price')}" th:text="${err}"></small>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="stockQuantity" class="form-label">Số lượng tồn kho</label>
+                <input type="number" class="form-control" id="stockQuantity" name="stockQuantity" th:field="*{stockQuantity}" min="0" required>
+                <div class="text-danger mt-1" th:if="${#fields.hasErrors('stockQuantity')}">
+                    <small th:each="err : ${#fields.errors('stockQuantity')}" th:text="${err}"></small>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="imageUrl" class="form-label">Hình ảnh URL</label>
+                <input type="text" class="form-control" id="imageUrl" th:field="*{imageUrl}">
+                <div class="text-danger mt-1" th:if="${#fields.hasErrors('imageUrl')}">
+                    <small th:each="err : ${#fields.errors('imageUrl')}" th:text="${err}"></small>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Cập nhật</button>
+                <a th:href="@{/products}" class="btn btn-secondary ms-2">Quay lại</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>
