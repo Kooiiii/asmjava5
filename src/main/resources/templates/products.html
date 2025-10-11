@@ -2,86 +2,66 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
-
 <head>
-    <meta charset="UTF-8">
     <title>Danh Sách Sản Phẩm - 36 Store</title>
     <style>
-        .product-card {
-            transition: 0.3s;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-        .product-card img {
-            height: 300px;
-            object-fit: cover;
-            transition: 0.3s;
-            width: 100%;
-        }
-        .product-card:hover {
-            transform: translateY(-10px);
-        }
+        .product-card { transition: 0.3s; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
+        .product-card img { height: 300px; object-fit: cover; transition: 0.3s; }
+        .product-card:hover { transform: translateY(-10px); }
     </style>
 </head>
-
 <body>
+
 <div layout:fragment="content">
     <div class="container mt-5">
-        <h2 class="text-center mb-4">Danh Sách Sản Phẩm</h2>
+        <h2 class="text-center">Danh Sách Sản Phẩm</h2>
 
         <!-- Nút thêm sản phẩm -->
-        <div class="text-end mb-3"
-             th:if="${user != null && user.role != null && user.role == 'ADMIN'}">
+        <div class="text-end mb-3" th:if="${user != null && user.role != null && user.role == 'ADMIN'}">
             <a th:href="@{/products/add}" class="btn btn-success">
                 <i class="fa-solid fa-plus me-2"></i>Thêm Sản Phẩm
             </a>
         </div>
 
-        <!-- Danh sách sản phẩm -->
         <div class="row row-cols-1 row-cols-md-3 g-4">
             <div class="col" th:each="product : ${products}">
                 <div class="card h-100 shadow-sm product-card">
-                    <img th:src="${product.imageUrl != null && product.imageUrl != ''
-                         ? product.imageUrl
-                         : '/images/default.png'}"
+                    <img th:src="${product.imageUrl != null && product.imageUrl != '' ? product.imageUrl : '/images/default.png'}"
                          class="card-img-top img-fluid"
                          alt="Ảnh sản phẩm">
                     <div class="card-body">
-                        <h5 class="card-title" th:text="${product.name}">Tên sản phẩm</h5>
-                        <p class="card-text" th:text="${product.description}">Mô tả</p>
-                        <p class="text-primary fw-bold"
-                           th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">250,000 đ</p>
+                        <h5 class="card-title" th:text="${product.name}"></h5>
+                        <p class="card-text"><strong>Giá:</strong> <span th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span></p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between">
+                        <a th:href="@{/products/{id}(id=${product.id})}" class="btn btn-primary">Chi Tiết</a>
+                        <div th:if="${user != null && user.role != null && user.role == 'ADMIN'}">
+                            <a th:href="@{/products/edit/{id}(id=${product.id})}" class="btn btn-warning">Chỉnh Sửa</a>
+                            <a th:href="@{/products/delete/{id}(id=${product.id})}" class="btn btn-danger"
+                               onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">Xóa</a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-
         <!-- Phân trang -->
         <nav th:if="${totalPages > 1}" class="mt-4">
             <ul class="pagination justify-content-center">
                 <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                    <a class="page-link"
-                       th:href="@{/products(page=${currentPage - 1}, size=5)}">Trước</a>
+                    <a class="page-link" th:href="@{/products(page=${currentPage - 1}, size=5)}">Trước</a>
                 </li>
-
-                <li class="page-item"
-                    th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}"
+                <li class="page-item" th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}"
                     th:classappend="${pageNum == currentPage} ? 'active'">
-                    <a class="page-link"
-                       th:href="@{/products(page=${pageNum}, size=5)}"
-                       th:text="${pageNum + 1}">1</a>
+                    <a class="page-link" th:href="@{/products(page=${pageNum}, size=5)}" th:text="${pageNum + 1}"></a>
                 </li>
-
-                <li class="page-item"
-                    th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
-                    <a class="page-link"
-                       th:href="@{/products(page=${currentPage + 1}, size=5)}">Sau</a>
+                <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                    <a class="page-link" th:href="@{/products(page=${currentPage + 1}, size=5)}">Sau</a>
                 </li>
             </ul>
         </nav>
     </div>
 </div>
+
 </body>
 </html>

@@ -34,9 +34,9 @@
                 <tr th:each="cartItem : ${cartItems}">
                     <td><img th:src="${cartItem.product.imageUrl}" width="60" class="rounded"></td>
                     <td th:text="${cartItem.product.name}"></td>
-                    <td th:text="${cartItem.product.price} + ' VNĐ'"></td>
+                    <td th:text="${#numbers.formatDecimal(cartItem.product.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
                     <td th:text="${cartItem.quantity}"></td>
-                    <td th:text="${cartItem.product.price * cartItem.quantity} + ' VNĐ'"></td>
+                    <td th:text="${#numbers.formatDecimal(cartItem.product.price * cartItem.quantity, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
                     <td>
                         <a th:href="@{/cart/remove/{id}(id=${cartItem.product.id})}"
                            class="btn btn-danger btn-sm">Xóa</a>
@@ -46,7 +46,7 @@
             </table>
 
             <h4 class="text-end text-danger fw-bold">
-                Tổng tiền: <span th:text="${totalPrice} + ' VNĐ'"></span>
+                Tổng tiền: <span th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span>
             </h4>
 
             <div class="d-flex justify-content-between mt-3">
