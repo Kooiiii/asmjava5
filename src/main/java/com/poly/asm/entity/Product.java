@@ -1,39 +1,32 @@
 package com.poly.asm.entity;
 
-import lombok.Data;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import java.util.List;
 
-@Data
+@Getter
+@Setter
+@Entity
+@Table(name = "SP")
 public class Product {
-    private Long id;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "MaSP")
+    private Integer id;
+    @Column(name = "TenSP", length = 100)
     private String name;
+    @Column(name = "HinhAnh", length = 255)
+    private String image;
+    @Column(name = "MoTa", length = 255)
     private String description;
-    private Double price;
-    private Integer stockQuantity;
-    private String imageUrl;
-
-    public Product() {}
-
-    public Product(Long id, String name, Double price, String imageUrl) {
-        this.id = id;
-        this.name = name;
-        this.price = price;
-        this.imageUrl = imageUrl;
-    }
-
-    public Product(Long id, String name, String description, Double price, String imageUrl) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.imageUrl = imageUrl;
-    }
-
-    public Product(Long id, String name, String description, Double price, Integer stockQuantity, String imageUrl) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.stockQuantity = stockQuantity;
-        this.imageUrl = imageUrl;
-    }
+    @ManyToOne
+    @JoinColumn(name = "MaDM_SP")
+    private Category category;
+    @ManyToOne
+    @JoinColumn(name = "MaTH")
+    private Brand brand;
+    @OneToMany(mappedBy = "product")
+    private List<ProductVariant> variants;
 }

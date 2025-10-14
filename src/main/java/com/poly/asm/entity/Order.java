@@ -1,18 +1,37 @@
 package com.poly.asm.entity;
 
-import lombok.Data;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import java.util.Date;
+import java.util.List;
 
-@Data
+@Getter
+@Setter
+@Entity
+@Table(name = "HD")
 public class Order {
-    private Long id;
-    private User user;
-    private Double totalPrice;
-    private String status;
 
-    public Order(Long id, User user, Double totalPrice, String status) {
-        this.id = id;
-        this.user = user;
-        this.totalPrice = totalPrice;
-        this.status = status;
-    }
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "MaHD")
+    private Integer id;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "NgayLap")
+    private Date orderDate;
+    @Column(name = "TrangThai", length = 50)
+    private String status;
+    @Column(name = "HinhThucTT", length = 50)
+    private String paymentMethod;
+    @ManyToOne
+    @JoinColumn(name = "MaKH")
+    private User customer;
+    @ManyToOne
+    @JoinColumn(name = "MaNV")
+    private User staff;
+    @ManyToOne
+    @JoinColumn(name = "MaDC")
+    private Address shippingAddress;
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    private List<OrderDetail> orderDetails;
 }
