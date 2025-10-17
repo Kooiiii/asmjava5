@@ -17,8 +17,7 @@
 //
 //    private User createDefaultUser() {
 //        // Đổi role ở đây để test: "USER" hoặc "ADMIN"
-//        return new User(1L, "user123", "Nguyễn Văn A", "user@email.com",
-//                "0123456789", "Hà Nội", "USER");
+////        return new User(1L, "user123", "Nguyễn Văn A", "user@email.com", "0123456789", "Hà Nội", "USER");
 //    }
 //
 //    public User getCurrentUser() {
