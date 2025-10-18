@@ -1,58 +1,62 @@
 package com.poly.asm.config;
 
+import com.poly.asm.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-// Đánh dấu đây là một lớp cấu hình
 @Configuration
-// Kích hoạt tính năng bảo mật web của Spring Security
 @EnableWebSecurity
 public class SecurityConfig {
 
-    /**
-     * Spring sẽ tìm thấy phương thức @Bean này và tạo ra một đối tượng PasswordEncoder.
-     * Sau đó, nó có thể được inject (@Autowired) vào bất kỳ đâu trong ứng dụng.
-     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    /**
-     * Cấu hình các quy tắc bảo mật cho các request HTTP.
-     * Đây là nơi bạn định nghĩa trang nào cần đăng nhập, trang nào không.
-     */
+    // Chúng ta cần UserDetailsService để Spring Security biết cách tìm user
+    @Bean
+    public UserDetailsService userDetailsService(UserService userService) {
+        return username -> userService.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Tạm thời vô hiệu hóa CSRF để dễ test
+                .csrf(csrf -> csrf.disable()) // Tạm thời vô hiệu hóa CSRF
                 .authorizeHttpRequests(authorize -> authorize
-                        // Cho phép tất cả mọi người truy cập vào các URL này
-                        .requestMatchers("/", "/home", "/css/**", "/js/**", "/images/**").permitAll()
-                        .requestMatchers("/products/**", "/cart/**").permitAll()
-                        .requestMatchers("/login", "/register").permitAll()
+                        // === CÁC TRANG CÔNG KHAI ===
+                        .requestMatchers("/", "/home", "/photos/**", "/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/products", "/products/{id}", "/products/search").permitAll()
+                        .requestMatchers("/auth/login", "/sign-up", "/register/saveUser", "/forgot-password").permitAll() // Đường dẫn đăng nhập/đăng ký
 
-                        // Yêu cầu quyền 'ADMIN' để truy cập vào các URL bắt đầu bằng /admin/
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        // === CÁC TRANG ADMIN ===
+                        .requestMatchers("/admin/**", "/products/add", "/products/edit/**", "/products/delete/**").hasRole("ADMIN") // Yêu cầu quyền ADMIN
 
-                        // Tất cả các request còn lại đều cần phải được xác thực (đăng nhập)
+                        // === CÁC TRANG CẦN ĐĂNG NHẬP ===
+                        .requestMatchers("/profile/**", "/cart/**", "/checkout/**", "/order/**").authenticated() // Yêu cầu đăng nhập
+
+                        // Mọi request khác
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        // Cấu hình trang đăng nhập tùy chỉnh
-                        .loginPage("/login")           // Đường dẫn đến trang đăng nhập
-                        .loginProcessingUrl("/login")  // URL mà form đăng nhập sẽ gửi đến để xử lý
-                        .defaultSuccessUrl("/home", true) // URL chuyển hướng sau khi đăng nhập thành công
-                        .permitAll()                     // Cho phép tất cả mọi người truy cập trang đăng nhập
+                        .loginPage("/auth/login")         // Trang đăng nhập của bạn
+                        .loginProcessingUrl("/login")   // URL Spring Security xử lý (khớp với template login.html)
+                        .defaultSuccessUrl("/", true)  // Về trang chủ sau khi login thành công
+                        .failureUrl("/auth/login?error=true") // Báo lỗi nếu login sai
+                        .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login?logout") // URL chuyển hướng sau khi đăng xuất
+                        .logoutUrl("/logout") // Đường dẫn để thực hiện logout
+                        .logoutSuccessUrl("/auth/login?logout=true") // Về trang login sau khi logout
                         .permitAll()
                 );
 
