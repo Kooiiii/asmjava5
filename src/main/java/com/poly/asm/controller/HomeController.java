@@ -29,10 +29,8 @@ public class HomeController {
     @GetMapping("/")
     public String home(Model model, Principal principal) {
         addUserToModel(model, principal); // Thêm user vào model
-
-        // Thay vì demo, ta gọi service
-        model.addAttribute("featuredProducts", productService.findAll()); // (Nên tạo 1 service riêng, ví dụ: findTop3Newest)
-        return "index"; // Trả về index.html
+        model.addAttribute("featuredProducts", productService.findAll());
+        return "index";
     }
 
     @GetMapping("/home")
