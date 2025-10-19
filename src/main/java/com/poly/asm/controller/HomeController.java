@@ -28,7 +28,7 @@ public class HomeController {
 
     @GetMapping("/")
     public String home(Model model, Principal principal) {
-        addUserToModel(model, principal); // Thêm user vào model
+        addUserToModel(model, principal);
         model.addAttribute("featuredProducts", productService.findAll());
         return "index";
     }

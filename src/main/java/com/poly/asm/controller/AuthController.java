@@ -17,24 +17,23 @@ public class AuthController {
 
     @GetMapping("/auth/login")
     public String login() {
-        return "login"; // Trả về login.html
+        return "login";
     }
 
     @GetMapping("/forgot-password")
     public String forgotPassword() {
-        return "forgot_password"; // Trả về forgot_password.html
+        return "forgot_password";
     }
 
     @GetMapping("/sign-up")
     public String register(Model model) {
-        model.addAttribute("user", new User()); // Dùng thẳng Entity User
-        return "register"; // Trả về register.html
+        model.addAttribute("user", new User());
+        return "register";
     }
-    // Khớp với th:action trong register.html
+
     @PostMapping("/register/saveUser")
     public String registerUser(@ModelAttribute("user") User user, Model model) {
         try {
-            // Service sẽ mã hóa mật khẩu và gán role
             userService.registerUser(user);
             return "redirect:/auth/login?register_success";
         } catch (Exception e) {
