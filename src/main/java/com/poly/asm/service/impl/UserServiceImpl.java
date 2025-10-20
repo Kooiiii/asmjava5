@@ -4,8 +4,6 @@ import com.poly.asm.dao.UserRepository;
 import com.poly.asm.entity.User;
 import com.poly.asm.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,7 +32,7 @@ public class UserServiceImpl implements UserService {
 
         // Gán vai trò mặc định
         if (user.getRole() == null || user.getRole().isEmpty()) {
-            user.setRole("Customer"); // Customer, Admin, Staff
+            user.setRole("Customer");
         }
 
         return userRepository.save(user);
@@ -66,18 +64,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User saveUser(User user) {
-        // Nếu là user mới (id null)
         if (user.getId() == null) {
             // Kiểm tra username trùng
             if (userRepository.findByUsername(user.getUsername()).isPresent()) {
                 throw new RuntimeException("Tên đăng nhập đã tồn tại!");
             }
         } else {
-            // Nếu là cập nhật user
             User existingUser = userRepository.findById(user.getId())
                     .orElseThrow(() -> new RuntimeException("User không tồn tại!"));
 
-            // Kiểm tra username trùng (trừ chính nó)
+            // Kiểm tra username/email trùng (trừ chính nó)
             userRepository.findByUsername(user.getUsername())
                     .ifPresent(u -> {
                         if (!u.getId().equals(user.getId())) {
@@ -85,7 +81,6 @@ public class UserServiceImpl implements UserService {
                         }
                     });
 
-            // Kiểm tra email trùng (trừ chính nó)
             if (user.getEmail() != null && !user.getEmail().isEmpty()) {
                 userRepository.findByEmail(user.getEmail())
                         .ifPresent(u -> {
@@ -99,7 +94,6 @@ public class UserServiceImpl implements UserService {
             if (user.getPassword() == null || user.getPassword().isEmpty()) {
                 user.setPassword(existingUser.getPassword());
             }
-            // KHÔNG mã hóa mật khẩu mới
         }
 
         return userRepository.save(user);
@@ -107,7 +101,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(Integer id) {
-        // Kiểm tra user có tồn tại không
         if (!userRepository.existsById(id)) {
             throw new RuntimeException("User không tồn tại!");
         }
@@ -124,5 +117,19 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
+    }
+
+    // ✅ Cập nhật thông tin hồ sơ người dùng (không có avatar)
+    @Override
+    public User updateProfile(User user) {
+        User existingUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng!"));
+
+        existingUser.setFullName(user.getFullName());
+        existingUser.setEmail(user.getEmail());
+        existingUser.setPhone(user.getPhone());
+        existingUser.setAddress(user.getAddress());
+
+        return userRepository.save(existingUser);
     }
 }
