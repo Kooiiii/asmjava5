@@ -65,11 +65,14 @@
                             <i class="fa-solid fa-eye"></i> Xem chi tiết
                         </a>
 
-                        <form th:action="@{/cart/add/{id}/{quantity}(id=${product.id}, quantity=${1})}" method="get" style="display: inline;">
+                        <form th:action="@{/cart/add}" method="post" style="display: inline;">
+                            <input type="hidden" name="variantId" th:value="${product.variants[0].id}">
+                            <input type="hidden" name="quantity" value="1">
                             <button type="submit" class="btn btn-outline-dark">
                                 <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ
                             </button>
                         </form>
+
                     </div>
                 </div>
             </div>
