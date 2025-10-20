@@ -24,6 +24,8 @@
                 <tr>
                     <th>Ảnh</th>
                     <th>Tên sản phẩm</th>
+                    <th>Màu sắc</th>
+                    <th>Kích thước</th>
                     <th>Giá</th>
                     <th>Số lượng</th>
                     <th>Thành tiền</th>
@@ -32,14 +34,23 @@
                 </thead>
                 <tbody>
                 <tr th:each="cartItem : ${cartItems}">
-                    <td><img th:src="${cartItem.product.imageUrl}" width="60" class="rounded"></td>
-                    <td th:text="${cartItem.product.name}"></td>
-                    <td th:text="${#numbers.formatDecimal(cartItem.product.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
-                    <td th:text="${cartItem.quantity}"></td>
-                    <td th:text="${#numbers.formatDecimal(cartItem.product.price * cartItem.quantity, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
                     <td>
-                        <a th:href="@{/cart/remove/{id}(id=${cartItem.product.id})}"
-                           class="btn btn-danger btn-sm">Xóa</a>
+                        <img th:src="${cartItem.productVariant.product.imageUrl}"
+                             width="60" class="rounded"
+                             th:alt="${cartItem.productVariant.product.name}">
+                    </td>
+                    <td th:text="${cartItem.productVariant.product.name}"></td>
+                    <td th:text="${cartItem.productVariant.color.name}"></td>
+                    <td th:text="${cartItem.productVariant.size.name}"></td>
+                    <td th:text="${#numbers.formatDecimal(cartItem.productVariant.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
+                    <td th:text="${cartItem.quantity}"></td>
+                    <td th:text="${#numbers.formatDecimal(cartItem.productVariant.price.doubleValue() * cartItem.quantity, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
+                    <td>
+                        <a th:href="@{/cart/remove/{id}(id=${cartItem.id})}"
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">
+                            Xóa
+                        </a>
                     </td>
                 </tr>
                 </tbody>
@@ -51,7 +62,10 @@
 
             <div class="d-flex justify-content-between mt-3">
                 <a th:href="@{/products}" class="btn btn-secondary">Tiếp tục mua sắm</a>
-                <a th:href="@{/cart/clear}" class="btn btn-danger">Xóa toàn bộ</a>
+                <a th:href="@{/cart/clear}" class="btn btn-danger"
+                   onclick="return confirm('Bạn có chắc chắn muốn xóa toàn bộ giỏ hàng?');">
+                    Xóa toàn bộ
+                </a>
                 <a th:href="@{/checkout}" class="btn btn-success">Thanh toán</a>
             </div>
         </div>

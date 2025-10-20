@@ -67,7 +67,20 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public void removeCartItem(Integer cartItemId) {
-        cartItemRepository.deleteById(cartItemId);
+
+    }
+
+    @Override
+    public void removeCartItem(Integer cartItemId, Integer userId) {
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new RuntimeException("Cart item not found"));
+
+        // Kiểm tra quyền sở hữu
+        if (!cartItem.getCustomer().getId().equals(userId)) {
+            throw new RuntimeException("Unauthorized access to cart item");
+        }
+
+        cartItemRepository.delete(cartItem);
     }
 
     @Override

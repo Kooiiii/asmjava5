@@ -9,4 +9,5 @@ public interface CartService {
     CartItem updateCartItem(Integer cartItemId, int quantity);
     void removeCartItem(Integer cartItemId);
     void clearCart(Integer userId);
+    void removeCartItem(Integer cartItemId, Integer userId);
 }

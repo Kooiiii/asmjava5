@@ -1,48 +1,39 @@
 package com.poly.asm.controller;
 
+import com.poly.asm.config.UserSession;
 import com.poly.asm.entity.Product;
 import com.poly.asm.service.ProductService;
-import com.poly.asm.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-import java.security.Principal;
 
 @Controller
+@RequiredArgsConstructor
 public class ProductController {
 
-    @Autowired private ProductService productService;
-    @Autowired private UserService userService;
+    private final ProductService productService;
+    private final UserSession userSession;
 
-    // Helper method
-    private void addUserToModel(Model model, Principal principal) {
-        if (principal != null) {
-            userService.findByUsername(principal.getName()).ifPresent(user -> {
-                model.addAttribute("user", user);
-            });
-        }
-    }
 
     @GetMapping("/products")
-    public String products(Model model, Principal principal) {
-        addUserToModel(model, principal);
-
+    public String products(Model model) {
+        model.addAttribute("user", userSession.getCurrentUser());
         model.addAttribute("products", productService.findAll());
-        // Logic phân trang có thể thêm sau
-        // model.addAttribute("currentPage", 0);
-        // model.addAttribute("totalPages", 1);
         return "products";
     }
 
     @GetMapping("/products/{id}")
-    public String productDetail(@PathVariable("id") Integer id, Model model, Principal principal) {
-        addUserToModel(model, principal);
+    public String productDetail(@PathVariable("id") Integer id, Model model) {
+        model.addAttribute("user", userSession.getCurrentUser());
 
         try {
             Product product = productService.findById(id);
+            if (product.getVariants().isEmpty()) {
+                return "redirect:/products?error=novariants";
+            }
             model.addAttribute("product", product);
             return "product_detail";
         } catch (Exception e) {
@@ -51,10 +42,11 @@ public class ProductController {
     }
 
     @GetMapping("/products/search")
-    public String searchProducts(@RequestParam String keyword, Model model, Principal principal) {
-        addUserToModel(model, principal);
+    public String searchProducts(@RequestParam String keyword, Model model) {
+        // Thêm user vào model giống CartController
+        model.addAttribute("user", userSession.getCurrentUser());
         model.addAttribute("products", productService.findAll());
         model.addAttribute("keyword", keyword);
-        return "product-list"; // Trả về product-list.html
+        return "product-list";
     }
 }

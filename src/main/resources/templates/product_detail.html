@@ -29,11 +29,12 @@
                     <h4 class="text-danger fw-bold" th:text="'Giá: ' + ${#numbers.formatDecimal(product.variants[0].price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></h4>
 
                     <!-- Nút Thêm vào giỏ hàng -->
-                    <form th:action="@{/cart/add/{id}/{quantity}(id=${product.id}, quantity=${1})}" method="get"
-                          onsubmit="this.action=this.action.replace('${1}', this.querySelector('input[name=quantity]').value)">
+                    <form th:action="@{/cart/add}" method="post">
+                        <input type="hidden" name="variantId" th:value="${product.variants[0].id}">
                         <div class="d-flex align-items-center mb-3">
                             <label for="quantity" class="me-2 fw-semibold">Số lượng:</label>
-                            <input type="number" id="quantity" name="quantity" value="1" min="1" class="form-control w-25">
+                            <input type="number" id="quantity" name="quantity" value="1" min="1"
+                                   th:max="${product.variants[0].quantity}" class="form-control w-25">
                         </div>
                         <button type="submit" class="btn btn-custom px-4 py-2">
                             <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ hàng
