@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
 
         // Gán vai trò mặc định
         if (user.getRole() == null || user.getRole().isEmpty()) {
-            user.setRole("Customer");
+            user.setRole("Customer"); // Customer, Admin, Staff
         }
 
         return userRepository.save(user);
@@ -49,7 +49,20 @@ public class UserServiceImpl implements UserService {
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
+    @Override
+    public boolean changePassword(User currentUser, String oldPassword, String newPassword) {
+        User user = userRepository.findById(currentUser.getId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng!"));
 
+        // ⚠️ So sánh mật khẩu (chưa mã hóa)
+        if (!user.getPassword().equals(oldPassword)) {
+            throw new RuntimeException("Mật khẩu cũ không đúng!");
+        }
+
+        user.setPassword(newPassword);
+        userRepository.save(user);
+        return true;
+    }
     @Override
     @Transactional(readOnly = true)
     public Optional<User> findById(Integer id) {
@@ -119,7 +132,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.existsByEmail(email);
     }
 
-    // ✅ Cập nhật thông tin hồ sơ người dùng (không có avatar)
+    // ✅ Cập nhật thông tin hồ sơ người dùng (Profile)
     @Override
     public User updateProfile(User user) {
         User existingUser = userRepository.findById(user.getId())

@@ -35,4 +35,6 @@ public interface UserService {
 
     // ✅ Cập nhật hồ sơ người dùng
     User updateProfile(User user);
+
+    boolean changePassword(User currentUser, String oldPassword, String newPassword);
 }
