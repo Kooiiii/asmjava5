@@ -3,7 +3,7 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
 <head>
-    <title>Đăng nhập - 36 Store</title>
+    <title>Đăng nhập - Duc Long Store</title>
     <style>
         .auth-container {
             min-height: calc(100vh - 200px);
@@ -46,29 +46,9 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(230, 74, 25, 0.3);
         }
-        .form-control {
+        .alert-custom {
             border-radius: 10px;
-            padding: 12px 15px;
-            border: 2px solid #e9ecef;
-            transition: all 0.3s ease;
-        }
-        .form-control:focus {
-            border-color: #ff5733;
-            box-shadow: 0 0 0 0.2rem rgba(255, 87, 51, 0.25);
-        }
-        a {
-            color: #ff5733;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-        a:hover {
-            color: #e64a19;
-        }
-        .form-label {
-            font-weight: 600;
-            color: #495057;
-            margin-bottom: 8px;
+            border: none;
         }
     </style>
 </head>
@@ -80,11 +60,24 @@
             <h2 class="fw-bold mb-4 text-dark"><i class="fa-solid fa-user-circle me-2"></i> Đăng nhập</h2>
             <p class="text-muted mb-4">Chào mừng bạn đến với <strong class="text-dark">Duc Long Store</strong></p>
 
+            <!-- Hiển thị thông báo lỗi -->
+            <div th:if="${error}" class="alert alert-danger alert-custom mb-3">
+                <i class="fa-solid fa-circle-exclamation me-2"></i>
+                <span th:text="${error}"></span>
+            </div>
+
+            <!-- Hiển thị thông báo thành công -->
+            <div th:if="${message}" class="alert alert-success alert-custom mb-3">
+                <i class="fa-solid fa-circle-check me-2"></i>
+                <span th:text="${message}"></span>
+            </div>
+
             <form th:action="@{/login}" method="post">
                 <div class="mb-3 text-start">
                     <label for="username" class="form-label"><i class="fa-solid fa-user me-2"></i>Tên đăng nhập</label>
                     <input type="text" id="username" name="username" class="form-control"
-                           placeholder="Nhập tên đăng nhập" required autofocus>
+                           placeholder="Nhập tên đăng nhập" required autofocus
+                           th:value="${param.username != null ? param.username : ''}">
                 </div>
 
                 <div class="mb-4 text-start">

@@ -18,7 +18,7 @@ public class Product {
     @Column(name = "TenSP", length = 100)
     private String name;
     @Column(name = "HinhAnh", length = 255)
-    private String image;
+    private String imageUrl;
     @Column(name = "MoTa", length = 255)
     private String description;
     @ManyToOne

@@ -62,13 +62,13 @@
                 <li class="nav-item"><a class="nav-link fw-semibold" href="/"><i class="fa-solid fa-house me-1"></i>Trang chủ</a></li>
                 <li class="nav-item"><a class="nav-link fw-semibold" href="/products"><i class="fa-solid fa-box me-1"></i>Sản phẩm</a></li>
 
-                <!-- Giỏ hàng - chỉ hiển thị cho USER -->
-                <li class="nav-item" th:if="${user != null && user.role != null && user.role == 'USER'}">
+                <!-- Giỏ hàng - chỉ hiển thị cho CUSTOMER -->
+                <li class="nav-item" th:if="${user != null && user.role != null && user.role.toUpperCase() == 'CUSTOMER'}">
                     <a class="nav-link fw-semibold" href="/cart"><i class="fa-solid fa-cart-shopping me-1"></i>Giỏ hàng</a>
                 </li>
 
                 <!-- Quản lý đơn hàng - chỉ hiển thị cho ADMIN -->
-                <li class="nav-item" th:if="${user != null && user.role != null && user.role == 'ADMIN'}">
+                <li class="nav-item" th:if="${user != null && user.role != null && user.role.toUpperCase() == 'ADMIN'}">
                     <a class="nav-link fw-semibold" href="/admin/orders"><i class="fa-solid fa-list-check me-1"></i>Đơn hàng</a>
                 </li>
 
@@ -86,7 +86,7 @@
                         <i class="fa-solid fa-user me-1"></i>
                         <span th:if="${user != null}" th:text="${user.fullName != null ? user.fullName : user.username}"></span>
                         <span th:if="${user == null}">Tài khoản</span>
-                        <span th:if="${user != null && user.role != null && user.role == 'ADMIN'}" class="badge admin-badge">ADMIN</span>
+                        <span th:if="${user != null && user.role != null && user.role.toUpperCase() == 'ADMIN'}" class="badge admin-badge">ADMIN</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end shadow">
                         <!-- Menu cho người dùng chưa đăng nhập -->
@@ -100,7 +100,7 @@
                             <li><a class="dropdown-item" href="/profile"><i class="fa-solid fa-id-badge me-2"></i>Thông tin tài khoản</a></li>
 
                             <!-- Menu quản lý cho ADMIN -->
-                            <div th:if="${user.role != null && user.role == 'ADMIN'}">
+                            <div th:if="${user != null && user.role != null && user.role.toUpperCase() == 'ADMIN'}">
                                 <li><hr class="dropdown-divider"></li>
                                 <li><h6 class="dropdown-header text-primary"><i class="fa-solid fa-shield me-2"></i>Quản lý hệ thống</h6></li>
                                 <li><a class="dropdown-item" href="/admin/users"><i class="fa-solid fa-users me-2"></i>Quản lý người dùng</a></li>
@@ -109,9 +109,9 @@
                                 <li><a class="dropdown-item" href="/admin/orders"><i class="fa-solid fa-clipboard-list me-2"></i>Quản lý đơn hàng</a></li>
                                 <li><hr class="dropdown-divider"></li>
                             </div>
-
-                            <li>
-                                <a class="dropdown-item text-danger" href="/auth/login">
+                            <li th:if="${user != null}"><hr class="dropdown-divider"></li>
+                            <li th:if="${user != null}">
+                                <a class="dropdown-item text-danger" th:href="@{/logout}">
                                     <i class="fa-solid fa-sign-out-alt me-2"></i>Đăng xuất
                                 </a>
                             </li>

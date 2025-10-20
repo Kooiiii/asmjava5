@@ -6,12 +6,30 @@ import java.util.Optional;
 
 public interface UserService {
 
-    // Chức năng cho người dùng
+    // Chức năng đăng ký user mới
     User registerUser(User user);
+
+    // Tìm user theo username (dùng cho đăng nhập)
     Optional<User> findByUsername(String username);
 
-    // Chức năng cho Admin
+    // Tìm user theo email
+    Optional<User> findByEmail(String email);
+
+    // Tìm user theo ID
+    Optional<User> findById(Integer id);
+
+    // Lấy tất cả users
     List<User> findAllUsers();
-    User saveUser(User user); // Dùng cho cả tạo mới và cập nhật
+
+    // Lưu user (cả tạo mới và cập nhật)
+    User saveUser(User user);
+
+    // Xóa user
     void deleteUser(Integer id);
+
+    // Kiểm tra username đã tồn tại
+    boolean existsByUsername(String username);
+
+    // Kiểm tra email đã tồn tại
+    boolean existsByEmail(String email);
 }

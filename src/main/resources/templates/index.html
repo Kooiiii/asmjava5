@@ -39,7 +39,7 @@
                     <div class="card-body text-center">
                         <h5 class="card-title fw-bold" th:text="${product.name}"></h5>
                         <p class="card-text" th:text="${product.description}"></p>
-                        <p class="fw-bold text-danger" th:text="'Giá: ' + ${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></p>
+                        <p class="fw-bold text-danger" th:text="'Giá: ' + ${#numbers.formatDecimal(product.variants[0].price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></p>
 
                         <a th:href="@{/products/{id}(id=${product.id})}" class="btn btn-outline-dark">
                             <i class="fa-solid fa-eye"></i> Xem chi tiết

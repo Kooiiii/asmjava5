@@ -26,7 +26,7 @@
                 <div class="product-info p-4">
                     <h2 class="fw-bold" th:text="${product.name}"></h2>
                     <p class="text-muted" th:text="${product.description}"></p>
-                    <h4 class="text-danger fw-bold" th:text="'Giá: ' + ${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></h4>
+                    <h4 class="text-danger fw-bold" th:text="'Giá: ' + ${#numbers.formatDecimal(product.variants[0].price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></h4>
 
                     <!-- Nút Thêm vào giỏ hàng -->
                     <form th:action="@{/cart/add/{id}/{quantity}(id=${product.id}, quantity=${1})}" method="get"
