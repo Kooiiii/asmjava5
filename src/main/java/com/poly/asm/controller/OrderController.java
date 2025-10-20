@@ -1,72 +1,96 @@
-//package com.poly.asm.controller;
-//
-//import com.poly.asm.entity.CartItem;
-//import com.poly.asm.entity.Order;
-//import com.poly.asm.entity.Product;
-//import com.poly.asm.entity.User;
-//import org.springframework.stereotype.Controller;
-//import org.springframework.ui.Model;
-//import org.springframework.web.bind.annotation.GetMapping;
-//import org.springframework.web.bind.annotation.PathVariable;
-//
-//import java.util.Arrays;
-//import java.util.List;
-//
-//@Controller
-//public class OrderController {
-//
-//    @GetMapping("/order/checkout")
-//    public String checkout(Model model){
-//        List<CartItem> cartItems = Arrays.asList(
-//                new CartItem(1L, new Product(1L, "Áo thun nam", 250000.0, "https://source.unsplash.com/300x300/?tshirt"), 2),
-//                new CartItem(2L, new Product(2L, "Quần jeans", 450000.0, "https://source.unsplash.com/300x300/?jeans"), 1)
-//        );
-//
-//        double totalPrice = cartItems.stream()
-//                .mapToDouble(item -> item.getProduct().getPrice() * item.getQuantity())
-//                .sum();
-//
-//        model.addAttribute("cartItems", cartItems);
-//        model.addAttribute("totalPrice", totalPrice);
-//        return "checkout";
-//    }
-//
-//    @GetMapping("/order/list")
-//    public String list(Model model){
-//        List<Order> orders = Arrays.asList(
-//                new Order(1L, new User(1L, "Nguyễn Văn A"), 950000.0, "Đã giao"),
-//                new Order(2L, new User(1L, "Nguyễn Văn A"), 1200000.0, "Đang xử lý"),
-//                new Order(3L, new User(1L, "Nguyễn Văn A"), 550000.0, "Đang giao")
-//        );
-//
-//        model.addAttribute("orders", orders);
-//        return "orders";
-//    }
-//
-//    @GetMapping("/checkout")
-//    public String showCheckout(Model model){
-//        return "checkout";
-//    }
-//
-//    @GetMapping("/checkout/process")
-//    public String processCheckout(Model model){
-//        return "redirect:/checkout/success";
-//    }
-//
-//    @GetMapping("/checkout/success")
-//    public String checkoutSuccess(Model model){
-//        return "checkout_success";
-//    }
-//
-//    @GetMapping("/orders/{id}")
-//    public String orderDetail(@PathVariable String id, Model model){
-//        Order order = new Order(
-//                Long.parseLong(id),
-//                new User(1L, "Nguyễn Văn A"),
-//                950000.0,
-//                "Đã giao"
-//        );
-//        model.addAttribute("order", order);
-//        return "order_detail";
-//    }
-//}
+package com.poly.asm.controller;
+
+import com.poly.asm.config.UserSession;
+import com.poly.asm.entity.Order;
+import com.poly.asm.entity.User;
+import com.poly.asm.service.OrderService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@Controller
+@RequestMapping("/order")
+@RequiredArgsConstructor
+public class OrderController {
+
+    private final OrderService orderService;
+    private final UserSession userSession;
+
+    @GetMapping("/checkout")
+    public String checkout(Model model) {
+        User currentUser = userSession.getCurrentUser();
+        if (currentUser == null) {
+            return "redirect:/auth/login";
+        }
+        // Thêm logic lấy giỏ hàng và địa chỉ giao hàng
+        return "checkout";
+    }
+
+    @PostMapping("/create")
+    public String createOrder(@RequestParam Integer addressId, Model model) {
+        try {
+            User currentUser = userSession.getCurrentUser();
+            if (currentUser == null) {
+                return "redirect:/auth/login";
+            }
+
+            Order order = orderService.createOrder(currentUser.getId(), addressId);
+            model.addAttribute("order", order);
+            return "redirect:/order/success/" + order.getId();
+        } catch (RuntimeException e) {
+            model.addAttribute("error", e.getMessage());
+            return "checkout";
+        }
+    }
+
+    @GetMapping("/success/{orderId}")
+    public String orderSuccess(@PathVariable Integer orderId, Model model) {
+        User currentUser = userSession.getCurrentUser();
+        if (currentUser == null) {
+            return "redirect:/auth/login";
+        }
+
+        // Có thể lấy thông tin order từ service nếu cần
+        model.addAttribute("orderId", orderId);
+        return "checkout_success";
+    }
+
+    @GetMapping("/list")
+    public String orderList(Model model) {
+        User currentUser = userSession.getCurrentUser();
+        if (currentUser == null) {
+            return "redirect:/auth/login";
+        }
+
+        List<Order> orders = orderService.findByUserId(currentUser.getId());
+        model.addAttribute("orders", orders);
+        model.addAttribute("user", currentUser);
+        return "orders";
+    }
+
+    @GetMapping("/detail/{orderId}")
+    public String orderDetail(@PathVariable Integer orderId, Model model) {
+        User currentUser = userSession.getCurrentUser();
+        if (currentUser == null) {
+            return "redirect:/auth/login";
+        }
+
+        // Cần implement service để lấy order detail
+        List<Order> userOrders = orderService.findByUserId(currentUser.getId());
+        Order order = userOrders.stream()
+                .filter(o -> o.getId().equals(orderId))
+                .findFirst()
+                .orElse(null);
+
+        if (order == null) {
+            return "redirect:/order/list";
+        }
+
+        model.addAttribute("order", order);
+        model.addAttribute("user", currentUser);
+        return "order_detail";
+    }
+}

@@ -32,14 +32,34 @@
 
     <div class="container mt-5">
         <h2 class="text-center mb-4 fw-bold"><i class="fa-solid fa-fire"></i> Sản phẩm nổi bật</h2>
-        <div class="row">
+
+        <!-- Thêm kiểm tra nếu không có sản phẩm -->
+        <div th:if="${featuredProducts == null or featuredProducts.isEmpty()}" class="text-center py-5">
+            <div class="alert alert-info">
+                <i class="fa-solid fa-info-circle me-2"></i>
+                Hiện chưa có sản phẩm nào. Vui lòng quay lại sau!
+            </div>
+        </div>
+
+        <div class="row" th:if="${featuredProducts != null and !featuredProducts.isEmpty()}">
             <div class="col-md-4" th:each="product : ${featuredProducts}">
                 <div class="card product-card">
                     <img th:src="${product.imageUrl}" class="card-img-top" alt="Sản phẩm">
                     <div class="card-body text-center">
                         <h5 class="card-title fw-bold" th:text="${product.name}"></h5>
                         <p class="card-text" th:text="${product.description}"></p>
-                        <p class="fw-bold text-danger" th:text="'Giá: ' + ${#numbers.formatDecimal(product.variants[0].price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></p>
+
+                        <!-- SỬA LỖI Ở ĐÂY: Kiểm tra variants trước khi truy cập -->
+                        <p class="fw-bold text-danger"
+                           th:if="${product.variants != null and !product.variants.isEmpty()}"
+                           th:text="'Giá: ' + ${#numbers.formatDecimal(product.variants[0].price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
+                        </p>
+
+                        <!-- Hiển thị khi không có variants -->
+                        <p class="fw-bold text-muted"
+                           th:unless="${product.variants != null and !product.variants.isEmpty()}">
+                            Đang cập nhật giá
+                        </p>
 
                         <a th:href="@{/products/{id}(id=${product.id})}" class="btn btn-outline-dark">
                             <i class="fa-solid fa-eye"></i> Xem chi tiết

@@ -1,5 +1,6 @@
 package com.poly.asm.controller;
 
+import com.poly.asm.entity.Product;
 import com.poly.asm.entity.User;
 import com.poly.asm.service.ProductService;
 import com.poly.asm.service.UserService;
@@ -9,6 +10,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 public class HomeController {
@@ -16,7 +19,6 @@ public class HomeController {
     @Autowired private ProductService productService;
     @Autowired private UserService userService;
 
-    // Lấy thông tin user (nếu đã đăng nhập) để hiển thị trên layout
     private void addUserToModel(Model model, Principal principal) {
         if (principal != null) {
             String username = principal.getName();
@@ -29,7 +31,10 @@ public class HomeController {
     @GetMapping("/")
     public String home(Model model, Principal principal) {
         addUserToModel(model, principal);
-        model.addAttribute("featuredProducts", productService.findAll());
+
+        List<Product> featuredProducts = productService.findAll();
+        model.addAttribute("featuredProducts", featuredProducts != null ? featuredProducts : new ArrayList<>());
+
         return "index";
     }
 

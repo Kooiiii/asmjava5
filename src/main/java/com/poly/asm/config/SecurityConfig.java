@@ -33,16 +33,30 @@ public class SecurityConfig {
         return username -> userService.findByUsername(username)
                 .map(user -> {
                     String role = user.getRole();
-                    if (role.startsWith("ROLE_")) {
-                        role = role.substring(5);
-                    }
+                    // Chuyển đổi role từ database thành Spring Security format
+                    String springRole = convertToSpringRole(role);
                     return org.springframework.security.core.userdetails.User.builder()
                             .username(user.getUsername())
-                            .password(user.getPassword())
-                            .roles(role.toUpperCase())
+                            .password(user.getPassword()) // Password không mã hóa
+                            .roles(springRole)
                             .build();
                 })
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+    }
+
+    // Phương thức chuyển đổi role từ database sang Spring Security
+    private String convertToSpringRole(String dbRole) {
+        if (dbRole == null) return "CUSTOMER";
+
+        switch (dbRole.toUpperCase()) {
+            case "ADMIN":
+                return "ADMIN";
+            case "STAFF":
+                return "STAFF";
+            case "CUSTOMER":
+            default:
+                return "CUSTOMER";
+        }
     }
 
     @Bean
@@ -62,8 +76,9 @@ public class SecurityConfig {
                         .requestMatchers("/products", "/products/{id}", "/products/search").permitAll()
                         .requestMatchers("/auth/login", "/sign-up", "/register/saveUser", "/forgot-password").permitAll()
 
-                        // Sửa lại role check
+                        // Phân quyền theo role từ database
                         .requestMatchers("/admin/**", "/products/add", "/products/edit/**", "/products/delete/**").hasRole("ADMIN")
+                        .requestMatchers("/staff/**").hasRole("STAFF")
 
                         .requestMatchers("/profile/**", "/cart/**", "/checkout/**", "/order/**").authenticated()
                         .anyRequest().authenticated()
@@ -71,13 +86,15 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/auth/login")
                         .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/", true) // Chuyển hướng đến HomeController
+                        .defaultSuccessUrl("/", true)
                         .failureUrl("/auth/login?error=true")
                         .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/logout")
+                        .logoutUrl("/logout") // POST method
                         .logoutSuccessUrl("/auth/login?logout=true")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
                         .permitAll()
                 )
                 .authenticationProvider(authenticationProvider());

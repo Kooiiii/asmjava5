@@ -10,25 +10,42 @@
 <div layout:fragment="content">
     <div class="container mt-5">
         <h2 class="text-center">Danh Sách Đơn Hàng</h2>
+
+        <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
         <table class="table table-hover text-center">
             <thead class="table-dark">
             <tr>
-                <th>ID</th>
-                <th>Người Đặt</th>
+                <th>Mã HD</th>
+                <th>Ngày đặt</th>
                 <th>Tổng Giá</th>
                 <th>Trạng Thái</th>
+                <th>Hình thức TT</th>
                 <th>Hành Động</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="order : ${orders}">
                 <td th:text="${order.id}"></td>
-                <td th:text="${order.user.fullName}"></td>
-                <td th:text="${#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
-                <td th:text="${order.status}"></td>
+                <td th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></td>
                 <td>
-                    <a th:href="@{/orders/{id}(id=${order.id})}" class="btn btn-info btn-sm">Xem</a>
-                    <a th:href="@{/orders/delete/{id}(id=${order.id})}" class="btn btn-danger btn-sm">Hủy</a>
+                    <!-- Tính tổng tiền từ orderDetails -->
+                    <span th:with="total=${order.orderDetails.![quantity * price].?[sum()]}"
+                          th:text="${#numbers.formatDecimal(total != null ? total : 0, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
+                    </span>
+                </td>
+                <td>
+                    <span th:text="${order.status}"
+                          th:class="${order.status == 'Chờ duyệt'} ? 'badge bg-warning' :
+                                   ${order.status == 'Đang giao'} ? 'badge bg-info' :
+                                   ${order.status == 'Đã giao'} ? 'badge bg-success' :
+                                   'badge bg-secondary'">
+                    </span>
+                </td>
+                <td th:text="${order.paymentMethod}"></td>
+                <td>
+                    <a th:href="@{/order/detail/{id}(id=${order.id})}" class="btn btn-info btn-sm">Xem</a>
                 </td>
             </tr>
             </tbody>

@@ -19,13 +19,6 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
 
-    private final PasswordEncoder passwordEncoder;
-
-    // Sử dụng @Lazy và constructor injection
-    public UserServiceImpl(@Lazy PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
-    }
-
     @Override
     public User registerUser(User user) {
         // Kiểm tra username đã tồn tại
@@ -39,12 +32,9 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Email đã được sử dụng!");
         }
 
-        // Mã hóa mật khẩu
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-        // Gán vai trò mặc định - SỬA LẠI để khớp với database
+        // Gán vai trò mặc định
         if (user.getRole() == null || user.getRole().isEmpty()) {
-            user.setRole("Customer"); // Không có ROLE_ prefix
+            user.setRole("Customer"); // Customer, Admin, Staff
         }
 
         return userRepository.save(user);
@@ -82,8 +72,6 @@ public class UserServiceImpl implements UserService {
             if (userRepository.findByUsername(user.getUsername()).isPresent()) {
                 throw new RuntimeException("Tên đăng nhập đã tồn tại!");
             }
-            // Mã hóa mật khẩu cho user mới
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
         } else {
             // Nếu là cập nhật user
             User existingUser = userRepository.findById(user.getId())
@@ -110,10 +98,8 @@ public class UserServiceImpl implements UserService {
             // Giữ mật khẩu cũ nếu không thay đổi
             if (user.getPassword() == null || user.getPassword().isEmpty()) {
                 user.setPassword(existingUser.getPassword());
-            } else {
-                // Mã hóa mật khẩu mới
-                user.setPassword(passwordEncoder.encode(user.getPassword()));
             }
+            // KHÔNG mã hóa mật khẩu mới
         }
 
         return userRepository.save(user);
