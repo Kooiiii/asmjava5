@@ -5,9 +5,38 @@
 <head>
     <title>Danh Sách Sản Phẩm - 36 Store</title>
     <style>
-        .product-card { transition: 0.3s; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
-        .product-card img { height: 300px; object-fit: cover; transition: 0.3s; }
-        .product-card:hover { transform: translateY(-10px); }
+        .product-card {
+            transition: 0.3s;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .product-card img {
+            height: 300px;
+            object-fit: cover;
+            transition: 0.3s;
+        }
+        .product-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .no-image {
+            height: 300px;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-weight: bold;
+        }
+
+        /* Ẩn ảnh khi bị lỗi */
+        .product-image {
+            display: block;
+        }
+        .product-image.error {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -16,7 +45,6 @@
     <div class="container mt-5">
         <h2 class="text-center">Danh Sách Sản Phẩm</h2>
 
-        <!-- Nút thêm sản phẩm -->
         <div class="text-end mb-3" th:if="${user != null && user.role != null && user.role == 'ADMIN'}">
             <a th:href="@{/products/add}" class="btn btn-success">
                 <i class="fa-solid fa-plus me-2"></i>Thêm Sản Phẩm
@@ -26,40 +54,47 @@
         <div class="row row-cols-1 row-cols-md-3 g-4">
             <div class="col" th:each="product : ${products}">
                 <div class="card h-100 shadow-sm product-card">
-                    <img th:src="${product.imageUrl != null && product.imageUrl != '' ? product.imageUrl : '/images/default.png'}"
-                         class="card-img-top img-fluid"
-                         alt="Ảnh sản phẩm">
+                    <div th:if="${product.imageUrl != null and product.imageUrl != '' and product.imageUrl.startsWith('http')}">
+                        <img th:src="${product.imageUrl}"
+                             class="card-img-top img-fluid"
+                             alt="Ảnh sản phẩm"
+                             loading="lazy">
+                    </div>
+                    <div th:if="${product.imageUrl == null or product.imageUrl == '' or !product.imageUrl.startsWith('http')}"
+                         class="no-image">
+                        <span>Chưa có ảnh</span>
+                    </div>
+
                     <div class="card-body">
                         <h5 class="card-title" th:text="${product.name}"></h5>
-                        <p class="card-text"><strong>Giá:</strong> <span th:text="${#numbers.formatDecimal(product.variants[0].price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span></p>
+                        <p class="card-text">
+                            <strong>Giá:</strong>
+                            <span th:if="${!product.variants.empty}"
+                                  th:text="${#numbers.formatDecimal(product.variants[0].price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
+                            </span>
+                            <span th:if="${product.variants.empty}" class="text-danger">Liên hệ</span>
+                        </p>
                     </div>
                     <div class="card-footer d-flex justify-content-between">
-                        <a th:href="@{/products/{id}(id=${product.id})}" class="btn btn-primary">Chi Tiết</a>
+                        <a th:href="@{/products/{id}(id=${product.id})}" class="btn btn-outline-dark">
+                            <i class="fa-solid fa-eye"></i> Xem chi tiết
+                        </a>
+                        <form th:action="@{/cart/add}" method="post" style="display: inline;">
+                            <input type="hidden" name="variantId" th:value="${product.variants[0].id}">
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="btn btn-outline-dark">
+                                <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ
+                            </button>
+                        </form>
                         <div th:if="${user != null && user.role != null && user.role == 'ADMIN'}">
-                            <a th:href="@{/products/edit/{id}(id=${product.id})}" class="btn btn-warning">Chỉnh Sửa</a>
-                            <a th:href="@{/products/delete/{id}(id=${product.id})}" class="btn btn-danger"
+                            <a th:href="@{/products/edit/{id}(id=${product.id})}" class="btn btn-warning btn-sm">Sửa</a>
+                            <a th:href="@{/products/delete/{id}(id=${product.id})}" class="btn btn-danger btn-sm"
                                onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">Xóa</a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Phân trang -->
-        <nav th:if="${totalPages > 1}" class="mt-4">
-            <ul class="pagination justify-content-center">
-                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                    <a class="page-link" th:href="@{/products(page=${currentPage - 1}, size=5)}">Trước</a>
-                </li>
-                <li class="page-item" th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}"
-                    th:classappend="${pageNum == currentPage} ? 'active'">
-                    <a class="page-link" th:href="@{/products(page=${pageNum}, size=5)}" th:text="${pageNum + 1}"></a>
-                </li>
-                <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
-                    <a class="page-link" th:href="@{/products(page=${currentPage + 1}, size=5)}">Sau</a>
-                </li>
-            </ul>
-        </nav>
     </div>
 </div>
 
