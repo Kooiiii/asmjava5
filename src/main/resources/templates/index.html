@@ -52,8 +52,9 @@
                         <!-- SỬA LỖI Ở ĐÂY: Kiểm tra variants trước khi truy cập -->
                         <p class="fw-bold text-danger"
                            th:if="${product.variants != null and !product.variants.isEmpty()}"
-                           th:text="'Giá: ' + ${#numbers.formatDecimal(product.variants[0].price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
+                           th:text="|Giá: ${#numbers.formatDecimal(product.variants[0].price, 0, 'COMMA', 0, 'POINT')} VNĐ|">
                         </p>
+
 
                         <!-- Hiển thị khi không có variants -->
                         <p class="fw-bold text-muted"
@@ -65,13 +66,15 @@
                             <i class="fa-solid fa-eye"></i> Xem chi tiết
                         </a>
 
-                        <form th:action="@{/cart/add}" method="post" style="display: inline;">
+                        <form th:if="${product.variants != null and !product.variants.isEmpty()}"
+                              th:action="@{/cart/add}" method="post" style="display: inline;">
                             <input type="hidden" name="variantId" th:value="${product.variants[0].id}">
                             <input type="hidden" name="quantity" value="1">
                             <button type="submit" class="btn btn-outline-dark">
                                 <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ
                             </button>
                         </form>
+
 
                     </div>
                 </div>
