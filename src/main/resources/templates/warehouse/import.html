@@ -1,106 +1,101 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}"
+      lang="vi">
 <head>
-    <meta charset="UTF-8">
     <title>Nhập Kho</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body class="bg-light">
+<body> <div layout:fragment="content">
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">📦 Quản Lý Nhập Kho</h2>
 
-<div class="container mt-5">
-    <h2 class="text-center mb-4">📦 Quản Lý Nhập Kho</h2>
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <form th:action="@{/warehouse}" method="post" class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Sản phẩm</label>
+                        <select name="productId" class="form-select" required>
+                            <option value="">-- Chọn sản phẩm --</option>
+                            <option th:each="sp : ${products}" th:value="${sp.id}" th:text="${sp.name}"></option>
+                        </select>
+                    </div>
 
-    <!-- FORM NHẬP KHO -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <form th:action="@{/warehouse}" method="post" class="row g-3">
-                <div class="col-md-4">
-                    <label class="form-label fw-bold">Sản phẩm</label>
-                    <select name="productId" class="form-select" required>
-                        <option value="">-- Chọn sản phẩm --</option>
-                        <option th:each="sp : ${products}" th:value="${sp.id}" th:text="${sp.name}"></option>
-                    </select>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Kích thước</label>
+                        <select name="sizeId" class="form-select" required>
+                            <option value="">-- Chọn size --</option>
+                            <option th:each="s : ${sizes}" th:value="${s.id}" th:text="${s.name}"></option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Màu sắc</label>
+                        <select name="colorId" class="form-select" required>
+                            <option value="">-- Chọn màu --</option>
+                            <option th:each="c : ${colors}" th:value="${c.id}" th:text="${c.name}"></option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">Số lượng</label>
+                        <input type="number" name="quantity" min="1" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Đơn giá nhập</label>
+                        <input type="number" name="price" step="1000" min="0" class="form-control" required>
+                    </div>
+
+                    <div class="col-12 text-end mt-3">
+                        <button type="submit" class="btn btn-primary px-4">Nhập Kho</button>
+                    </div>
+                </form>
+
+                <div th:if="${successMessage}" class="alert alert-success mt-3 text-center" th:text="${successMessage}">
                 </div>
-
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Kích thước</label>
-                    <select name="sizeId" class="form-select" required>
-                        <option value="">-- Chọn size --</option>
-                        <option th:each="s : ${sizes}" th:value="${s.id}" th:text="${s.name}"></option>
-                    </select>
+                <div th:if="${errorMessage}" class="alert alert-danger mt-3 text-center" th:text="${errorMessage}">
                 </div>
-
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Màu sắc</label>
-                    <select name="colorId" class="form-select" required>
-                        <option value="">-- Chọn màu --</option>
-                        <option value="1">Trắng</option>
-                        <option value="2">Đen</option>
-                        <option value="5">Xanh dương</option>
-                    </select>
-                </div>
-
-                <div class="col-md-2">
-                    <label class="form-label fw-bold">Số lượng</label>
-                    <input type="number" name="quantity" min="1" class="form-control" required>
-                </div>
-
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Đơn giá nhập</label>
-                    <input type="number" name="price" step="1000" min="0" class="form-control" required>
-                </div>
-
-                <div class="col-12 text-end mt-3">
-                    <button type="submit" class="btn btn-primary px-4">Nhập Kho</button>
-                </div>
-            </form>
-
-            <!-- ✅ Thông báo sau khi nhập -->
-            <div th:if="${success}" class="alert alert-success mt-3 text-center">
-                ✔️ Nhập kho thành công!
             </div>
         </div>
-    </div>
 
-    <!-- DANH SÁCH PHIẾU NHẬP KHO -->
-    <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white fw-bold">
-            Danh Sách Phiếu Nhập Kho Gần Đây
-        </div>
-        <div class="card-body p-0">
-            <table class="table table-striped table-hover mb-0">
-                <thead class="table-light">
-                <tr class="text-center">
-                    <th>#</th>
-                    <th>Tên sản phẩm</th>
-                    <th>Màu</th>
-                    <th>Size</th>
-                    <th>Số lượng</th>
-                    <th>Đơn giá</th>
-                    <th>Ngày nhập</th>
-                    <th>Nhân viên</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="nk, st : ${warehouseList}" class="text-center">
-                    <td th:text="${st.index + 1}"></td>
-                    <td th:text="${nk.productVariant.product.name}"></td>
-                    <td th:text="${nk.productVariant.color.name}"></td>
-                    <td th:text="${nk.productVariant.size.name}"></td>
-                    <td th:text="${nk.quantity}"></td>
-                    <td th:text="${#numbers.formatDecimal(nk.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
-                    <td th:text="${#dates.format(nk.importDate, 'dd/MM/yyyy')}"></td>
-                    <td th:text="${nk.staff.fullName}"></td>
-                </tr>
-                <tr th:if="${#lists.isEmpty(warehouseList)}">
-                    <td colspan="8" class="text-center text-muted py-3">Chưa có phiếu nhập nào</td>
-                </tr>
-                </tbody>
-            </table>
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white fw-bold">
+                Danh Sách Phiếu Nhập Kho Gần Đây
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-striped table-hover mb-0">
+                    <thead class="table-light">
+                    <tr class="text-center">
+                        <th>#</th>
+                        <th>Tên sản phẩm</th>
+                        <th>Màu</th>
+                        <th>Size</th>
+                        <th>Số lượng</th>
+                        <th>Đơn giá</th>
+                        <th>Ngày nhập</th>
+                        <th>Nhân viên</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="nk, st : ${warehouseList}" class="text-center">
+                        <td th:text="${st.index + 1}"></td>
+                        <td th:text="${nk.productVariant?.product?.name}"></td> <td th:text="${nk.productVariant?.color?.name}"></td>
+                        <td th:text="${nk.productVariant?.size?.name}"></td>
+                        <td th:text="${nk.quantity}"></td>
+                        <td th:text="${#numbers.formatDecimal(nk.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+                        <td th:text="${#dates.format(nk.importDate, 'dd/MM/yyyy')}"></td>
+                        <td th:text="${nk.staff?.fullName}"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(warehouseList)}">
+                        <td colspan="8" class="text-center text-muted py-3">Chưa có phiếu nhập nào</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
