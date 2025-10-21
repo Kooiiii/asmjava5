@@ -2,6 +2,7 @@ package com.poly.asm.config;
 
 import com.poly.asm.entity.User;
 import com.poly.asm.service.UserService;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
@@ -17,6 +18,8 @@ public class UserSession {
     @Autowired
     private UserService userService;
 
+    // ✅ Cập nhật user trong session
+    @Setter
     private User currentUser; // ✅ Biến lưu user trong session
 
     public User getCurrentUser() {
@@ -29,10 +32,6 @@ public class UserSession {
             currentUser = userService.findByUsername(username).orElse(null);
         }
         return currentUser;
-    }
-
-    public void setCurrentUser(User user) {
-        this.currentUser = user; // ✅ Cập nhật user trong session
     }
 
     public String getCurrentUsername() {
