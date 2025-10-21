@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Quản lý Người Dùng - 36 Store</title>
+    <style>
+        .badge {
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">📋 Danh Sách Người Dùng</h2>
+
+        <table class="table table-bordered text-center align-middle">
+            <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Tên Đăng Nhập</th>
+                <th>Họ Tên</th>
+                <th>Email</th>
+                <th>SĐT</th>
+                <th>Mật khẩu</th>
+                <th>Vai Trò</th>
+                <th>Hành Động</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="user : ${users}">
+                <td th:text="${user.id}"></td>
+                <td th:text="${user.username}"></td>
+                <td th:text="${user.fullName}"></td>
+                <td th:text="${user.email}"></td>
+                <td th:text="${user.phone}"></td>
+                <!-- Ẩn mật khẩu -->
+                <td>***</td>
+                <td>
+                    <span th:text="${user.role}"
+                          th:classappend="${user.role == 'Admin' ? 'badge bg-danger' :
+                                           (user.role == 'Staff' ? 'badge bg-warning text-dark' :
+                                           'badge bg-secondary')}">
+                    </span>
+                </td>
+                <td>
+                    <a th:href="@{/admin/users/{id}(id=${user.id})}" class="btn btn-primary btn-sm">
+                        Chi tiết
+                    </a>
+                    <a th:href="@{/admin/users/delete/{id}(id=${user.id})}"
+                       class="btn btn-danger btn-sm"
+                       onclick="return confirm('Bạn có chắc chắn muốn xóa người dùng này không?');">
+                        Xóa
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

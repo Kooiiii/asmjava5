@@ -1,4 +1,4 @@
-package com.poly.asm.controller;
+package com.poly.asm.controller.Admin;
 
 import com.poly.asm.config.UserSession;
 import com.poly.asm.entity.Order;

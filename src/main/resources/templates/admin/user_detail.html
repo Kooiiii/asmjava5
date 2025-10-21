@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Chi tiết Người Dùng - 36 Store</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">👤 Chi tiết Người Dùng</h2>
+
+        <div class="card mx-auto" style="max-width: 500px;">
+            <div class="card-body">
+                <p><strong>ID:</strong> <span th:text="${user.id}"></span></p>
+                <p><strong>Tên đăng nhập:</strong> <span th:text="${user.username}"></span></p>
+                <p><strong>Họ tên:</strong> <span th:text="${user.fullName}"></span></p>
+                <p><strong>Email:</strong> <span th:text="${user.email}"></span></p>
+                <p><strong>SĐT:</strong> <span th:text="${user.phone}"></span></p>
+                <p><strong>Giới tính:</strong>
+                    <span th:text="${user.gender} ? 'Nam' : 'Nữ'"></span>
+                </p>
+                <p><strong>Ngày sinh:</strong> <span th:text="${user.birthday}"></span></p>
+                <p><strong>Địa chỉ:</strong> <span th:text="${user.address}"></span></p>
+                <p><strong>Vai trò:</strong> <span th:text="${user.role}"></span></p>
+
+                <div class="text-center mt-3">
+                    <a th:href="@{/admin/users}" class="btn btn-secondary">Quay lại</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
