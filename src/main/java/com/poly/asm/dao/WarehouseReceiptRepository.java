@@ -9,10 +9,4 @@ import java.util.List;
 
 @Repository
 public interface WarehouseReceiptRepository extends JpaRepository<WarehouseReceipt, Integer> {
-
-    // Tìm các phiếu nhập kho theo nhân viên
-    List<WarehouseReceipt> findByStaffId(Integer staffId);
-
-    // Tìm các phiếu nhập kho trong một khoảng thời gian
-    List<WarehouseReceipt> findByImportDateBetween(Date startDate, Date endDate);
 }
