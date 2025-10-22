@@ -33,8 +33,9 @@ public interface UserService {
     // 🟩 Kiểm tra email đã tồn tại
     boolean existsByEmail(String email);
 
-    // ✅ Cập nhật hồ sơ người dùng
-    User updateProfile(User user);
+    // ✅ Sửa lại hàm này cho đúng logic update profile
+    User updateUserProfile(User user);
 
-    boolean changePassword(User currentUser, String oldPassword, String newPassword);
+    // ✅ Sửa lại chữ ký hàm đổi mật khẩu cho khớp Controller
+    void changePassword(String username, String currentPassword, String newPassword);
 }

@@ -39,4 +39,12 @@ public class ProductServiceImpl implements ProductService {
     public void delete(Integer id) {
         productRepository.deleteById(id);
     }
+
+    @Override
+    public List<Product> searchByName(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return productRepository.findAll();
+        }
+        return productRepository.findByNameContainingIgnoreCase(keyword);
+    }
 }

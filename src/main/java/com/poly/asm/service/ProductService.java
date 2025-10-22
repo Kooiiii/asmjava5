@@ -5,12 +5,12 @@ import java.util.List;
 
 public interface ProductService {
 
-    // Chức năng cho người dùng
     List<Product> findAll();
     Product findById(Integer id);
     List<Product> findByCategoryId(Integer categoryId);
-
-    // Chức năng cho Admin
     Product save(Product product);
     void delete(Integer id);
+
+    // ✅ Thêm hàm tìm kiếm theo tên (Controller cần)
+    List<Product> searchByName(String keyword);
 }

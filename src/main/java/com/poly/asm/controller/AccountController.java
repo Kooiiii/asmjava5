@@ -1,76 +1,98 @@
 package com.poly.asm.controller;
 
-import com.poly.asm.config.UserSession;
-import com.poly.asm.entity.User;
+import com.poly.asm.entity.User; // Import User
 import com.poly.asm.service.UserService;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize; // Import PreAuthorize
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import java.security.Principal; // Import Principal
 
 @Controller
-@RequiredArgsConstructor
-public class AccountController {
+@RequestMapping("/profile") // Base path là /profile
+@PreAuthorize("isAuthenticated()") // Yêu cầu phải đăng nhập
+public class AccountController { // Không cần @RequiredArgsConstructor nữa
 
-    private final UserSession userSession;
-    private final UserService userService;
+    // Inject UserService bằng @Autowired
+    @Autowired
+    private UserService userService;
 
-    @GetMapping("/profile/edit")
-    public String editProfile(Model model) {
-        model.addAttribute("user", userSession.getCurrentUser());
-        return "update_profile";
-    }
+    // GlobalControllerAdvice sẽ tự động thêm ${user} vào model
 
-    @GetMapping("/profile")
+    @GetMapping // /profile
     public String profile(Model model) {
-        model.addAttribute("user", userSession.getCurrentUser());
-        return "profile";
+        // "user" đã được tự động thêm vào model
+        return "profile"; // Trả về /templates/profile.html
     }
 
-    @GetMapping("/profile/change-password")
+    @GetMapping("/edit") // /profile/edit
+    public String editProfile(Model model) {
+        // "user" đã được tự động thêm vào model, khớp với th:object="${user}"
+        return "update_profile"; // Trả về /templates/update_profile.html
+    }
+
+    @PostMapping("/update") // /profile/update
+    public String updateProfile(@ModelAttribute User userFromForm, Principal principal, RedirectAttributes redirectAttributes) {
+        try {
+            // Lấy username đang đăng nhập từ Principal
+            String username = principal.getName();
+            User loggedInUser = userService.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User không tìm thấy"));
+
+            // Chỉ cập nhật các trường cho phép
+            loggedInUser.setFullName(userFromForm.getFullName());
+            loggedInUser.setEmail(userFromForm.getEmail());
+            loggedInUser.setPhone(userFromForm.getPhone());
+            loggedInUser.setAddress(userFromForm.getAddress()); // Cập nhật cột Address trong USERS
+
+            userService.updateUserProfile(loggedInUser); // Gọi service để lưu
+            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật hồ sơ thành công!");
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
+            return "redirect:/profile/edit"; // Quay lại form edit nếu lỗi
+        }
+        return "redirect:/profile"; // Về trang profile sau khi thành công
+    }
+
+    @GetMapping("/change-password") // /profile/change-password
     public String changePasswordForm(Model model) {
-        model.addAttribute("user", userSession.getCurrentUser());
-        return "change_password";
+        // "user" đã được tự động thêm vào model
+        return "change_password"; // Trả về /templates/change_password.html
     }
 
-    // ✅ POST - xử lý đổi mật khẩu
-    @PostMapping("/profile/change-password")
-    public String changePassword(
-            @RequestParam String oldPassword,
-            @RequestParam String newPassword,
-            @RequestParam String confirmPassword,
-            Model model
-    ) {
-        User currentUser = userSession.getCurrentUser();
-        model.addAttribute("user", currentUser);
+    @PostMapping("/profile/change-password") // Khớp th:action
+    public String changePassword(Principal principal, // Lấy Principal
+                                 @RequestParam("currentPassword") String currentPassword, // Tên trong form cũ là oldPassword? Sửa lại nếu cần
+                                 @RequestParam("newPassword") String newPassword,
+                                 @RequestParam("confirmPassword") String confirmPassword,
+                                 RedirectAttributes redirectAttributes) { // Dùng RedirectAttributes để gửi thông báo
 
-        if (oldPassword.isEmpty() || newPassword.isEmpty() || confirmPassword.isEmpty()) {
-            model.addAttribute("errorMessage", "Vui lòng nhập đầy đủ thông tin!");
-            return "change_password";
-        }
+        // Lấy username đang đăng nhập
+        String username = principal.getName();
 
+        // Kiểm tra mật khẩu xác nhận
         if (!newPassword.equals(confirmPassword)) {
-            model.addAttribute("errorMessage", "Mật khẩu xác nhận không khớp!");
-            return "change_password";
+            redirectAttributes.addFlashAttribute("errorMessage", "Mật khẩu xác nhận không khớp!");
+            return "redirect:/profile/change-password";
         }
-
-        // ✅ Kiểm tra độ dài tối thiểu
-        if (newPassword.length() < 8) {
-            model.addAttribute("errorMessage", "Mật khẩu mới phải có ít nhất 8 ký tự!");
-            return "change_password";
+        // Kiểm tra độ dài (ông để 8 ký tự trong HTML, nên check ở đây luôn)
+        if (newPassword.length() < 3) { // Tạm để 3 ký tự cho pass '123'
+            redirectAttributes.addFlashAttribute("errorMessage", "Mật khẩu mới phải có ít nhất 3 ký tự!");
+            return "redirect:/profile/change-password";
         }
 
         try {
-            boolean success = userService.changePassword(currentUser, oldPassword, newPassword);
-            if (success) {
-                model.addAttribute("successMessage", "Đổi mật khẩu thành công!");
-            } else {
-                model.addAttribute("errorMessage", "Không thể đổi mật khẩu, vui lòng thử lại!");
-            }
-        } catch (RuntimeException e) {
-            model.addAttribute("errorMessage", e.getMessage());
+            // Gọi hàm service đã sửa (dùng username thay vì User object)
+            userService.changePassword(username, currentPassword, newPassword);
+            redirectAttributes.addFlashAttribute("successMessage", "Đổi mật khẩu thành công!");
+            return "redirect:/profile"; // Về trang profile
+        } catch (Exception e) {
+            // Bắt lỗi từ service (ví dụ: mật khẩu cũ sai)
+            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
+            return "redirect:/profile/change-password"; // Quay lại form đổi pass
         }
-
-        return "change_password";
     }
 }

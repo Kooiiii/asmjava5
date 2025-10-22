@@ -10,7 +10,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-
 public interface ProductVariantRepository extends JpaRepository<ProductVariant, Integer> {
+
     Optional<ProductVariant> findByProductAndSizeAndColor(Product product, Size size, Color color);
+    List<ProductVariant> findByProductId(Integer productId);
 }

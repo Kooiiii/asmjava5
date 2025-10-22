@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Chi Tiết Đơn Hàng - Admin</title>
+    <style>
+        .detail-card { box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 8px; }
+        .product-img-sm { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; }
+        .info-label { font-weight: 600; color: #555; }
+        .status-badge { font-size: 1rem !important; }
+    </style>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Chi Tiết Đơn Hàng #<span th:text="${order.id}"></span></h2>
+
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-5">
+                <div class="card detail-card h-100">
+                    <div class="card-header bg-dark text-white fw-bold">
+                        <i class="fa-solid fa-receipt me-2"></i>Thông Tin Đơn Hàng
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-2 row">
+                            <label class="col-sm-4 col-form-label info-label">Mã Đơn Hàng:</label>
+                            <div class="col-sm-8"><p class="form-control-plaintext fw-bold">#<span th:text="${order.id}"></span></p></div>
+                        </div>
+                        <div class="mb-2 row">
+                            <label class="col-sm-4 col-form-label info-label">Ngày Đặt:</label>
+                            <div class="col-sm-8"><p class="form-control-plaintext" th:text="${#dates.format(order.orderDate, 'HH:mm dd/MM/yyyy')}"></p></div>
+                        </div>
+                        <div class="mb-2 row">
+                            <label class="col-sm-4 col-form-label info-label">Khách Hàng:</label>
+                            <div class="col-sm-8"><p class="form-control-plaintext" th:text="${order.customer?.fullName} ?: ${order.customer?.username}"></p></div>
+                        </div>
+                        <div class="mb-2 row">
+                            <label class="col-sm-4 col-form-label info-label">Email:</label>
+                            <div class="col-sm-8"><p class="form-control-plaintext" th:text="${order.customer?.email}"></p></div>
+                        </div>
+                        <div class="mb-2 row">
+                            <label class="col-sm-4 col-form-label info-label">Điện Thoại:</label>
+                            <div class="col-sm-8"><p class="form-control-plaintext" th:text="${order.customer?.phone} ?: 'Chưa cung cấp'"></p></div>
+                        </div>
+                        <div class="mb-2 row">
+                            <label class="col-sm-4 col-form-label info-label">Địa Chỉ Giao:</label>
+                            <div class="col-sm-8"><p class="form-control-plaintext" th:text="${order.shippingAddress?.detailAddress} ?: 'Chưa cung cấp'"></p></div>
+                        </div>
+                        <div class="mb-2 row">
+                            <label class="col-sm-4 col-form-label info-label">Hình Thức TT:</label>
+                            <div class="col-sm-8"><p class="form-control-plaintext" th:text="${order.paymentMethod}"></p></div>
+                        </div>
+                        <div class="mb-3 row align-items-center">
+                            <label class="col-sm-4 col-form-label info-label">Trạng Thái:</label>
+                            <div class="col-sm-8">
+                                <span th:switch="${order.status}" class="badge status-badge"
+                                      th:classappend="${order.status == 'Chờ duyệt' ? 'bg-warning text-dark' :
+                                                       order.status == 'Đang xử lý' ? 'bg-info text-dark' :
+                                                       order.status == 'Đang giao' ? 'bg-primary' :
+                                                       order.status == 'Đã giao' ? 'bg-success' :
+                                                       order.status == 'Đã hủy' ? 'bg-danger' : 'bg-secondary'}">
+                                    <span th:text="${order.status}"></span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <hr>
+                        <h5 class="mb-3"><i class="fa-solid fa-pen-to-square me-2"></i>Cập Nhật Trạng Thái</h5>
+                        <form th:action="@{/admin/orders/update-status}" method="post">
+                            <input type="hidden" name="orderId" th:value="${order.id}" />
+                            <div class="input-group">
+                                <select class="form-select" name="status" id="statusSelect" required>
+                                    <option value="Chờ duyệt" th:selected="${order.status == 'Chờ duyệt'}">Chờ duyệt</option>
+                                    <option value="Đang xử lý" th:selected="${order.status == 'Đang xử lý'}">Đang xử lý</option>
+                                    <option value="Đang giao" th:selected="${order.status == 'Đang giao'}">Đang giao</option>
+                                    <option value="Đã giao" th:selected="${order.status == 'Đã giao'}">Đã giao</option>
+                                    <option value="Đã hủy" th:selected="${order.status == 'Đã hủy'}">Đã hủy</option>
+                                </select>
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fa-solid fa-save me-1"></i> Lưu
+                                </button>
+                            </div>
+                        </form>
+                        <div class="mt-4 text-center">
+                            <a th:href="@{/admin/orders}" class="btn btn-secondary">
+                                <i class="fa-solid fa-arrow-left me-1"></i> Quay lại Danh sách
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                <div class="card detail-card h-100">
+                    <div class="card-header bg-dark text-white fw-bold">
+                        <i class="fa-solid fa-boxes-stacked me-2"></i>Chi Tiết Sản Phẩm
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped mb-0 text-center align-middle caption-top">
+                                <caption>Danh sách sản phẩm trong đơn hàng</caption>
+                                <thead class="table-light">
+                                <tr>
+                                    <th scope="col">Ảnh</th>
+                                    <th scope="col">Sản Phẩm</th>
+                                    <th scope="col">SL</th>
+                                    <th scope="col">Đơn Giá</th>
+                                    <th scope="col">Thành Tiền</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="detail : ${order.orderDetails}">
+                                    <td>
+                                        <img th:src="${detail.productVariant?.product?.image ?: '/photos/default.png'}"
+                                             alt="SP" class="product-img-sm">
+                                    </td>
+                                    <td class="text-start">
+                                        <span th:text="${detail.productVariant?.product?.name}"></span><br>
+                                        <small class="text-muted" th:text="'Size: ' + ${detail.productVariant?.size?.name} + ' - Màu: ' + ${detail.productVariant?.color?.name}"></small>
+                                    </td>
+                                    <td th:text="${detail.quantity}"></td>
+                                    <td th:text="${#numbers.formatDecimal(detail.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+                                    <td class="fw-bold" th:text="${#numbers.formatDecimal(detail.price.doubleValue() * detail.quantity, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(order.orderDetails)}">
+                                    <td colspan="5" class="text-center text-muted py-4 fst-italic">Không có chi tiết sản phẩm nào.</td>
+                                </tr>
+                                </tbody>
+                                <tfoot class="table-light fw-bold">
+                                <tr>
+                                    <td colspan="4" class="text-end">Tổng cộng:</td>
+                                    <td class="text-danger">
+                                             <span th:if="${order.orderDetails != null}"
+                                                   th:text="${#numbers.formatDecimal(
+                                                      order.orderDetails.stream().mapToDouble(d -> d.price.doubleValue() * d.quantity).sum(),
+                                                  0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                                             </span>
+                                        <span th:unless="${order.orderDetails != null}">0 ₫</span>
+                                    </td>
+                                </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

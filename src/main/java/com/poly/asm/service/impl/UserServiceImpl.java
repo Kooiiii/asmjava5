@@ -4,6 +4,7 @@ import com.poly.asm.dao.UserRepository;
 import com.poly.asm.entity.User;
 import com.poly.asm.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,24 +18,23 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public User registerUser(User user) {
-        // Kiểm tra username đã tồn tại
-        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+        if (userRepository.existsByUsername(user.getUsername())) {
             throw new RuntimeException("Tên đăng nhập đã tồn tại!");
         }
-
-        // Kiểm tra email đã tồn tại
         if (user.getEmail() != null && !user.getEmail().isEmpty() &&
-                userRepository.findByEmail(user.getEmail()).isPresent()) {
+                userRepository.existsByEmail(user.getEmail())) { // Dùng existsByEmail
             throw new RuntimeException("Email đã được sử dụng!");
         }
-
-        // Gán vai trò mặc định
         if (user.getRole() == null || user.getRole().isEmpty()) {
-            user.setRole("Customer"); // Customer, Admin, Staff
+            user.setRole("Customer");
         }
 
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
@@ -49,20 +49,20 @@ public class UserServiceImpl implements UserService {
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
+
     @Override
-    public boolean changePassword(User currentUser, String oldPassword, String newPassword) {
-        User user = userRepository.findById(currentUser.getId())
+    public void changePassword(String username, String currentPassword, String newPassword) {
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng!"));
 
-        // ⚠️ So sánh mật khẩu (chưa mã hóa)
-        if (!user.getPassword().equals(oldPassword)) {
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
             throw new RuntimeException("Mật khẩu cũ không đúng!");
         }
 
-        user.setPassword(newPassword);
+        user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
-        return true;
     }
+
     @Override
     @Transactional(readOnly = true)
     public Optional<User> findById(Integer id) {
@@ -77,38 +77,35 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User saveUser(User user) {
-        if (user.getId() == null) {
-            // Kiểm tra username trùng
-            if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-                throw new RuntimeException("Tên đăng nhập đã tồn tại!");
-            }
-        } else {
-            User existingUser = userRepository.findById(user.getId())
-                    .orElseThrow(() -> new RuntimeException("User không tồn tại!"));
-
-            // Kiểm tra username/email trùng (trừ chính nó)
-            userRepository.findByUsername(user.getUsername())
-                    .ifPresent(u -> {
-                        if (!u.getId().equals(user.getId())) {
-                            throw new RuntimeException("Tên đăng nhập đã tồn tại!");
-                        }
-                    });
-
-            if (user.getEmail() != null && !user.getEmail().isEmpty()) {
-                userRepository.findByEmail(user.getEmail())
-                        .ifPresent(u -> {
-                            if (!u.getId().equals(user.getId())) {
-                                throw new RuntimeException("Email đã được sử dụng!");
-                            }
-                        });
-            }
-
-            // Giữ mật khẩu cũ nếu không thay đổi
-            if (user.getPassword() == null || user.getPassword().isEmpty()) {
-                user.setPassword(existingUser.getPassword());
-            }
+        User existingUser = null;
+        if (user.getId() != null) {
+            existingUser = userRepository.findById(user.getId()).orElse(null);
         }
 
+        userRepository.findByUsername(user.getUsername()).ifPresent(u -> {
+            if (user.getId() == null || !u.getId().equals(user.getId())) {
+                throw new RuntimeException("Tên đăng nhập đã tồn tại!");
+            }
+        });
+
+        if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+            userRepository.findByEmail(user.getEmail()).ifPresent(u -> {
+                if (user.getId() == null || !u.getId().equals(user.getId())) {
+                    throw new RuntimeException("Email đã được sử dụng!");
+                }
+            });
+        }
+
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+
+            if (!user.getPassword().equals("***")) {
+                user.setPassword(passwordEncoder.encode(user.getPassword()));
+            } else if (existingUser != null) {
+                user.setPassword(existingUser.getPassword());
+            }
+        } else if (existingUser != null) {
+            user.setPassword(existingUser.getPassword());
+        }
         return userRepository.save(user);
     }
 
@@ -132,9 +129,8 @@ public class UserServiceImpl implements UserService {
         return userRepository.existsByEmail(email);
     }
 
-    // ✅ Cập nhật thông tin hồ sơ người dùng (Profile)
     @Override
-    public User updateProfile(User user) {
+    public User updateUserProfile(User user) {
         User existingUser = userRepository.findById(user.getId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng!"));
 
@@ -142,7 +138,6 @@ public class UserServiceImpl implements UserService {
         existingUser.setEmail(user.getEmail());
         existingUser.setPhone(user.getPhone());
         existingUser.setAddress(user.getAddress());
-
         return userRepository.save(existingUser);
     }
 }

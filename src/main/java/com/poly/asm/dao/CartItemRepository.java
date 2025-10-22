@@ -12,17 +12,13 @@ import java.util.Optional;
 @Repository
 public interface CartItemRepository extends JpaRepository<CartItem, Integer> {
 
-    // Tìm tất cả sản phẩm trong giỏ hàng của một khách hàng
     List<CartItem> findByCustomerId(Integer customerId);
-
-    // Tìm một sản phẩm cụ thể trong giỏ hàng của khách hàng
     Optional<CartItem> findByCustomerIdAndProductVariantId(Integer customerId, Integer productVariantId);
-
-    // Kiểm tra quyền sở hữu
     Optional<CartItem> findByIdAndCustomerId(Integer id, Integer customerId);
 
-    // Xóa tất cả sản phẩm trong giỏ hàng của khách hàng
     @Modifying
     @Query("DELETE FROM CartItem c WHERE c.customer.id = :customerId")
     void deleteByCustomerId(@Param("customerId") Integer customerId);
+    @Override
+    void deleteById(Integer id);
 }

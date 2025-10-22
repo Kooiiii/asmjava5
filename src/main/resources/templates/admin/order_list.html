@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Quản lý Đơn Hàng</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">📦 Quản lý Đơn Hàng</h2>
+
+        <form th:action="@{/admin/orders}" method="get" class="row g-3 mb-4 align-items-end bg-light p-3 rounded border">
+            <div class="col-md-4">
+                <label for="statusFilter" class="form-label fw-bold">Lọc theo trạng thái:</label>
+                <select id="statusFilter" name="status" class="form-select form-select-sm">
+                    <option value="">-- Tất cả trạng thái --</option>
+                    <option value="Chờ duyệt" th:selected="${currentStatus == 'Chờ duyệt'}">Chờ duyệt</option>
+                    <option value="Đang xử lý" th:selected="${currentStatus == 'Đang xử lý'}">Đang xử lý</option>
+                    <option value="Đang giao" th:selected="${currentStatus == 'Đang giao'}">Đang giao</option>
+                    <option value="Đã giao" th:selected="${currentStatus == 'Đã giao'}">Đã giao</option>
+                    <option value="Đã hủy" th:selected="${currentStatus == 'Đã hủy'}">Đã hủy</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">&nbsp;</label> <button type="submit" class="btn btn-primary btn-sm w-100">
+                <i class="fa-solid fa-filter me-1"></i> Lọc
+            </button>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">&nbsp;</label>
+                <a th:href="@{/admin/orders}" class="btn btn-secondary btn-sm w-100">
+                    <i class="fa-solid fa-times me-1"></i> Bỏ lọc
+                </a>
+            </div>
+        </form>
+
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white fw-bold d-flex justify-content-between align-items-center">
+                <span><i class="fa-solid fa-list me-2"></i>Danh Sách Đơn Hàng</span>
+                <span class="badge bg-light text-dark" th:text="${#lists.size(orders)} + ' đơn'"></span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0 text-center align-middle caption-top">
+                        <caption>Danh sách các đơn hàng gần đây</caption>
+                        <thead class="table-light">
+                        <tr>
+                            <th scope="col">Mã ĐH</th>
+                            <th scope="col">Khách Hàng</th>
+                            <th scope="col">Ngày Đặt</th>
+                            <th scope="col">Tổng Tiền</th>
+                            <th scope="col">Trạng Thái</th>
+                            <th scope="col">Hành Động</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="order : ${orders}">
+                            <td th:text="${order.id}"></td>
+                            <td class="text-start">
+                                <span th:text="${order.customer?.fullName} ?: ${order.customer?.username}"></span><br>
+                                <small class="text-muted" th:text="${order.customer?.email}"></small>
+                            </td>
+                            <td th:text="${#dates.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></td>
+                            <td class="fw-bold text-danger">
+                                    <span th:if="${order.orderDetails != null}"
+                                          th:text="${#numbers.formatDecimal(
+                                              order.orderDetails.stream().mapToDouble(d -> d.price.doubleValue() * d.quantity).sum(),
+                                          0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                                     </span>
+                                <span th:unless="${order.orderDetails != null}" class="text-muted fst-italic">Cần xem chi tiết</span>
+                            </td>
+                            <td>
+                                     <span th:switch="${order.status}" class="badge fs-6"
+                                           th:classappend="${order.status == 'Chờ duyệt' ? 'bg-warning text-dark' :
+                                                           order.status == 'Đang xử lý' ? 'bg-info text-dark' :
+                                                           order.status == 'Đang giao' ? 'bg-primary' :
+                                                           order.status == 'Đã giao' ? 'bg-success' :
+                                                           order.status == 'Đã hủy' ? 'bg-danger' : 'bg-secondary'}">
+                                        <span th:text="${order.status}"></span>
+                                    </span>
+                            </td>
+                            <td>
+                                <a th:href="@{/admin/orders/{id}(id=${order.id})}" class="btn btn-sm btn-outline-primary me-1" title="Xem chi tiết">
+                                    <i class="fa-solid fa-eye"></i> Xem
+                                </a>
+                                <a th:href="@{/admin/orders/delete/{id}(id=${order.id})}"
+                                   onclick="return confirm('Bạn chắc chắn muốn xóa đơn hàng #' + [[${order.id}]] + '? Hành động này không thể hoàn tác!');"
+                                   class="btn btn-sm btn-outline-danger" title="Xóa đơn hàng">
+                                    <i class="fa-solid fa-trash"></i> Xóa
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(orders)}">
+                            <td colspan="6" class="text-center text-muted py-4 fst-italic">Không có đơn hàng nào khớp với bộ lọc.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
