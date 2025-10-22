@@ -3,21 +3,22 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
 <head>
-    <title>Quản lý Đơn Hàng</title> </head>
+    <title>Quản lý Đơn Hàng</title>
+</head>
 <body>
 
 <div layout:fragment="content">
     <div class="container mt-5">
         <h2 class="text-center mb-4">Quản lý Đơn Hàng</h2>
 
-        <form th:action="@{/admin/orders}" method="get" class="row g-3 mb-4 align-items-end bg-light p-3 rounded border shadow-sm">
+        <form th:action="@{/admin/orders}" method="get"
+              class="row g-3 mb-4 align-items-end bg-light p-3 rounded border shadow-sm">
             <div class="col-md-4">
                 <label for="statusFilter" class="form-label fw-bold">Lọc theo trạng thái:</label>
                 <select id="statusFilter" name="status" class="form-select form-select-sm">
                     <option value="">Tất cả trạng thái</option>
                     <option value="Chờ duyệt" th:selected="${currentStatus == 'Chờ duyệt'}">Chờ duyệt</option>
-                    <option value="Đang xử lý" th:selected="${currentStatus == 'Đang xử lý'}">Đang xử lý</option>
-                    <option value="Đang giao" th:selected="${currentStatus == 'Đang giao'}">Đang giao</option>
+                    <option value="Đã thanh toán" th:selected="${currentStatus == 'Đã thanh toán'}">Đã thanh toán</option>
                     <option value="Đã giao" th:selected="${currentStatus == 'Đã giao'}">Đã giao</option>
                     <option value="Đã hủy" th:selected="${currentStatus == 'Đã hủy'}">Đã hủy</option>
                 </select>
@@ -35,6 +36,7 @@
                 </a>
             </div>
         </form>
+
         <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
             <span th:text="${successMessage}"></span>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -43,6 +45,7 @@
             <span th:text="${errorMessage}"></span>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
+
         <div class="card shadow-sm">
             <div class="card-header bg-dark text-white fw-bold d-flex justify-content-between align-items-center">
                 <span><i class="fa-solid fa-list me-2"></i>Danh Sách Đơn Hàng</span>
@@ -57,43 +60,50 @@
                             <th scope="col">Mã ĐH</th>
                             <th scope="col" class="text-start">Khách Hàng</th>
                             <th scope="col">Ngày Đặt</th>
-                            <th scope="col">Tổng Tiền</th>
+                            <th scope="col">Hình thức TT</th>
                             <th scope="col">Trạng Thái</th>
                             <th scope="col">Hành Động</th>
                         </tr>
                         </thead>
 
-
                         <tbody>
                         <th:block th:if="${not #lists.isEmpty(orders)}">
                             <tr th:each="order : ${orders}">
+
                                 <td th:text="${order.id}"></td>
                                 <td class="text-start">
                                     <span th:text="${order.customer?.fullName} ?: ${order.customer?.username}"></span><br/>
                                     <small class="text-muted" th:text="${order.customer?.email}"></small>
                                 </td>
                                 <td th:text="${#dates.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></td>
-                                <td>(Tổng tiền tạm ẩn)</td>
+
+                                <!-- ✅ Hiển thị hình thức thanh toán -->
+                                <td th:text="${order.paymentMethod}"></td>
+
                                 <td>
-                                        <span th:switch="${order.status}" class="badge fs-6 text-nowrap"
-                                              th:classappend="${order.status == 'Chờ duyệt' ? 'bg-warning text-dark' :
-                                                               order.status == 'Đang xử lý' ? 'bg-info text-dark' :
-                                                               order.status == 'Đang giao' ? 'bg-primary' :
-                                                               order.status == 'Đã giao' ? 'bg-success' :
-                                                               order.status == 'Đã hủy' ? 'bg-danger' : 'bg-secondary'}">
-                                            <span th:text="${order.status}"></span>
-                                        </span>
+                                    <span th:switch="${order.status}" class="badge fs-6 text-nowrap"
+                                          th:classappend="${order.status == 'Chờ duyệt' ? 'bg-warning text-dark' :
+                                                           order.status == 'Đã thanh toán' ? 'bg-success' :
+                                                           order.status == 'Đã giao' ? 'bg-primary' :
+                                                           order.status == 'Đã hủy' ? 'bg-danger' : 'bg-secondary'}">
+                                        <span th:text="${order.status}"></span>
+                                    </span>
                                 </td>
                                 <td>
-                                    <a th:href="@{/admin/orders/{id}(id=${order.id})}" class="btn btn-sm btn-outline-primary me-1" title="Xem chi tiết">
+                                    <a th:href="@{/admin/orders/{id}(id=${order.id})}"
+                                       class="btn btn-sm btn-outline-primary me-1"
+                                       title="Xem chi tiết">
                                         <i class="fa-solid fa-eye"></i> Xem
                                     </a>
                                     <button class="btn btn-sm btn-outline-danger" disabled>Xóa (Tạm ẩn)</button>
                                 </td>
                             </tr>
                         </th:block>
+
                         <tr th:if="${#lists.isEmpty(orders)}">
-                            <td colspan="6" class="text-center text-muted py-4 fst-italic">Không có đơn hàng nào khớp với bộ lọc.</td>
+                            <td colspan="6" class="text-center text-muted py-4 fst-italic">
+                                Không có đơn hàng nào khớp với bộ lọc.
+                            </td>
                         </tr>
                         </tbody>
 

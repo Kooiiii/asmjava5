@@ -25,7 +25,7 @@ public class OrderController {
         if (currentUser == null) {
             return "redirect:/auth/login";
         }
-        // Thêm logic lấy giỏ hàng và địa chỉ giao hàng
+        // TODO: Thêm logic lấy giỏ hàng và địa chỉ giao hàng nếu cần
         return "checkout";
     }
 
@@ -53,7 +53,6 @@ public class OrderController {
             return "redirect:/auth/login";
         }
 
-        // Có thể lấy thông tin order từ service nếu cần
         model.addAttribute("orderId", orderId);
         return "checkout_success";
     }
@@ -65,7 +64,16 @@ public class OrderController {
             return "redirect:/auth/login";
         }
 
-        List<Order> orders = orderService.findByUserId(currentUser.getId());
+        // ✅ Chỉ lấy các đơn có trạng thái "Đã thanh toán" hoặc "Chờ duyệt"
+        List<Order> orders = orderService.findByUserId(currentUser.getId())
+                .stream()
+                .filter(o -> {
+                    String status = o.getStatus();
+                    return "Đã thanh toán".equalsIgnoreCase(status)
+                            || "Chờ duyệt".equalsIgnoreCase(status);
+                })
+                .toList();
+
         model.addAttribute("orders", orders);
         model.addAttribute("user", currentUser);
         return "orders";
@@ -78,7 +86,7 @@ public class OrderController {
             return "redirect:/auth/login";
         }
 
-        // Cần implement service để lấy order detail
+        // ✅ Lấy danh sách đơn của user hiện tại
         List<Order> userOrders = orderService.findByUserId(currentUser.getId());
         Order order = userOrders.stream()
                 .filter(o -> o.getId().equals(orderId))
