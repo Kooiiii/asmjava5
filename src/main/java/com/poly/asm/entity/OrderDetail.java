@@ -25,4 +25,12 @@ public class OrderDetail {
     @ManyToOne
     @JoinColumn(name = "MaBienThe")
     private ProductVariant productVariant;
+    @Transient
+    public BigDecimal getTotal() {
+        if (price == null || quantity == null) {
+            return BigDecimal.ZERO;
+        }
+        return price.multiply(BigDecimal.valueOf(quantity));
+    }
+
 }

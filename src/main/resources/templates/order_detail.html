@@ -28,7 +28,8 @@
             <h5>Mã đơn hàng: <span th:text="${order.id}"></span></h5>
             <p><strong>Người đặt:</strong> <span th:text="${order.user.fullName}"></span></p>
             <p><strong>Trạng thái:</strong> <span th:text="${order.status}"></span></p>
-            <p><strong>Tổng tiền:</strong> <span class="text-danger fw-bold" th:text="${#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span></p>
+            <p><strong>Tổng tiền:</strong> <span th:text="${order.totalPrice} + ' VNĐ'"></span>
+
             <p><strong>Ngày đặt:</strong> <span th:text="${#dates.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></span></p>
         </div>
 
@@ -50,8 +51,9 @@
                     <td><img th:src="${item.product.imageUrl}" alt="SP"></td>
                     <td th:text="${item.product.name}"></td>
                     <td th:text="${item.quantity}"></td>
-                    <td th:text="${item.product.price} + ' VNĐ'"></td>
-                    <td th:text="${item.quantity * item.product.price} + ' VNĐ'"></td>
+                    <td th:text="${item.product.price + ' VNĐ'}"></td>
+                    <td th:text="${item.quantity * item.product.price + ' VNĐ'}"></td>
+
                 </tr>
                 </tbody>
             </table>

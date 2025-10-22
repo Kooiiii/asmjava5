@@ -8,7 +8,6 @@ import java.util.List;
 
 @Repository
 public interface OrderDetailRepository extends JpaRepository<OrderDetail, Integer> {
-
-    // tìm tất cả chi tiết hóa đơn theo mã hóa đơn
     List<OrderDetail> findByOrderId(Integer orderId);
+    void deleteByOrderId(Integer orderId);
 }

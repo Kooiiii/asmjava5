@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
 <head>
@@ -13,14 +14,22 @@
         .status-badge { font-size: 0.9rem !important; padding: 0.4em 0.7em; }
     </style>
 </head>
+<body>
 <div layout:fragment="content">
-    <div class="container mt-5 mb-5"> <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">📜 Chi Tiết Đơn Hàng #<span class="text-primary" th:text="${order.id}"></span></h2>
-        <a th:href="@{/admin/orders}" class="btn btn-outline-secondary btn-sm">
-            <i class="fa-solid fa-arrow-left me-1"></i> Quay lại Danh sách
-        </a>
-    </div>
+    <div class="container mt-5 mb-5">
 
+        <!-- Tiêu đề -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0">
+                📜 Chi Tiết Đơn Hàng #
+                <span class="text-primary" th:text="${order.id}"></span>
+            </h2>
+            <a th:href="@{/admin/orders}" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-solid fa-arrow-left me-1"></i> Quay lại Danh sách
+            </a>
+        </div>
+
+        <!-- Thông báo -->
         <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
             <span th:text="${successMessage}"></span>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -31,6 +40,8 @@
         </div>
 
         <div class="row g-4">
+
+            <!-- Cột 1: Thông tin chung -->
             <div class="col-lg-4">
                 <div class="card info-card mb-4">
                     <div class="card-header bg-light fw-bold">
@@ -39,13 +50,18 @@
                     <div class="card-body">
                         <div class="mb-2">
                             <span class="info-label">Ngày đặt:</span>
-                            <span class="info-value float-end" th:text="${order.orderDate != null ? #dates.format(order.orderDate, 'HH:mm dd/MM/yyyy') : 'N/A'}"></span>
+                            <span class="info-value float-end"
+                                  th:text="${order.orderDate != null ? #dates.format(order.orderDate, 'HH:mm dd/MM/yyyy') : 'N/A'}">
+                            </span>
                         </div>
                         <div class="mb-2">
                             <span class="info-label">Thanh toán:</span>
-                            <span class="info-value float-end" th:text="${order.paymentMethod ?: 'N/A'}"></span>
+                            <span class="info-value float-end"
+                                  th:text="${order.paymentMethod != null ? order.paymentMethod : 'N/A'}">
+                            </span>
                         </div>
-                        <div class="mb-0"> <span class="info-label">Trạng thái hiện tại:</span>
+                        <div class="mb-0">
+                            <span class="info-label">Trạng thái hiện tại:</span>
                             <span class="float-end">
                                  <span th:switch="${order.status}" class="badge status-badge"
                                        th:classappend="${order.status == 'Chờ duyệt' ? 'bg-warning text-dark' :
@@ -60,6 +76,7 @@
                     </div>
                 </div>
 
+                <!-- Form cập nhật trạng thái -->
                 <div class="card info-card">
                     <div class="card-header bg-light fw-bold">
                         <i class="fa-solid fa-pen-to-square me-2"></i>Cập Nhật Trạng Thái
@@ -84,6 +101,7 @@
                 </div>
             </div>
 
+            <!-- Cột 2: Khách hàng & giao hàng -->
             <div class="col-lg-4">
                 <div class="card info-card h-100">
                     <div class="card-header bg-light fw-bold">
@@ -93,65 +111,86 @@
                         <h6 class="card-title mb-3">Thông tin khách hàng</h6>
                         <div class="mb-2">
                             <span class="info-label">Tên KH:</span>
-                            <span class="info-value float-end" th:text="${order.customer?.fullName} ?: ${order.customer?.username}"></span>
+                            <span class="info-value float-end"
+                                  th:text="${order.customer?.fullName != null ? order.customer.fullName : order.customer?.username}">
+                            </span>
                         </div>
                         <div class="mb-2">
                             <span class="info-label">Email:</span>
-                            <span class="info-value float-end" th:text="${order.customer?.email ?: 'N/A'}"></span>
+                            <span class="info-value float-end"
+                                  th:text="${order.customer?.email != null ? order.customer.email : 'N/A'}">
+                            </span>
                         </div>
                         <div class="mb-3">
                             <span class="info-label">Điện thoại:</span>
-                            <span class="info-value float-end" th:text="${order.customer?.phone ?: 'Chưa cung cấp'}"></span>
+                            <span class="info-value float-end"
+                                  th:text="${order.customer?.phone != null ? order.customer.phone : 'Chưa cung cấp'}">
+                            </span>
                         </div>
                         <hr>
                         <h6 class="card-title mb-3 mt-3">Thông tin giao hàng</h6>
-                        <p class="info-value" th:text="${order.shippingAddress?.detailAddress ?: 'Chưa có địa chỉ giao hàng'}"></p>
+                        <p class="info-value"
+                           th:text="${order.shippingAddress != null ? order.shippingAddress.address : 'Chưa có địa chỉ giao hàng'}">
+                        </p>
                     </div>
                 </div>
             </div>
 
+            <!-- Cột 3: Chi tiết sản phẩm -->
             <div class="col-lg-4">
                 <div class="card info-card h-100">
                     <div class="card-header bg-light fw-bold">
                         <i class="fa-solid fa-boxes-stacked me-2"></i>Chi Tiết Sản Phẩm
                     </div>
-                    <div class="card-body p-0"> <div class="table-responsive">
-                        <table class="table table-sm mb-0 text-center align-middle"> <thead class="table-light">
-                        <tr>
-                            <th scope="col" colspan="2">Sản Phẩm</th>
-                            <th scope="col">SL</th>
-                            <th scope="col">Đơn Giá</th>
-                            <th scope="col" class="text-end">Thành Tiền</th>
-                        </tr>
-                        </thead>
-                            <tbody>
-                            <tr th:each="detail : ${order.orderDetails}">
-                                <td>
-                                    <img th:src="${detail.productVariant?.product?.image ?: '/photos/default.png'}"
-                                         alt="SP" class="product-img-sm">
-                                </td>
-                                <td class="text-start" style="font-size: 0.9em;"> <span th:text="${detail.productVariant?.product?.name}"></span><br/>
-                                    <small class="text-muted" th:text="'Size: ' + ${detail.productVariant?.size?.name} + ' - Màu: ' + ${detail.productVariant?.color?.name}"></small>
-                                </td>
-                                <td th:text="${detail.quantity}"></td>
-                                <td th:text="${#numbers.formatDecimal(detail.price, 0, 'COMMA', 0, 'POINT')} + '₫'"></td>
-                                <td class="fw-bold text-end" th:text="${#numbers.formatDecimal(detail.price.doubleValue() * detail.quantity, 0, 'COMMA', 0, 'POINT')} + '₫'"></td>
-                            </tr>
-                            <tr th:if="${#lists.isEmpty(order.orderDetails)}">
-                                <td colspan="5" class="text-center text-muted py-3 fst-italic">Không có sản phẩm.</td>
-                            </tr>
-                            </tbody>
-                            <tfoot class="table-light fw-bold">
-                            <tr class="total-row">
-                                <td colspan="4" class="text-end">Tổng cộng:</td>
-                                <td class="text-danger text-end">
-                                            <span th:if="${order.orderDetails != null}"
-                                                  th:text="${#numbers.formatDecimal(
-                                                      order.orderDetails.stream().mapToDouble(d -> d.price.doubleValue() * d.quantity).sum(),
-                                                  0, 'COMMA', 0, 'POINT')} + ' ₫'">
-                                             </span>
-                                    <span th:unless="${order.orderDetails != null}">0 ₫</span>
-                                </td>
-                            </tr>
-                            </tfoot>
-                        </table> </div> </div> </div> </div> </div> </div> </div> </html>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-sm mb-0 text-center align-middle">
+                                <thead class="table-light">
+                                <tr>
+                                    <th colspan="2">Sản Phẩm</th>
+                                    <th>SL</th>
+                                    <th>Đơn Giá</th>
+                                    <th class="text-end">Thành Tiền</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="detail : ${order.orderDetails}">
+                                    <td>
+                                        <img th:src="${detail.productVariant.product.imageUrl != null
+                      ? detail.productVariant.product.imageUrl
+                      : '/photos/default.png'}"
+                                             alt="SP" class="product-img-sm">
+                                    </td>
+
+                                    <td class="text-start" style="font-size: 0.9em;">
+                                        <span th:text="${detail.productVariant.product.name}"></span><br/>
+                                        <small class="text-muted"
+                                               th:text="'Size: ' + ${detail.productVariant.size.name} + ' - Màu: ' + ${detail.productVariant.color.name}">
+                                        </small>
+                                    </td>
+
+                                    <td th:text="${detail.quantity}"></td>
+                                    <td th:text="${#numbers.formatDecimal(detail.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+                                    <td th:text="${#numbers.formatDecimal(detail.total, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></td>
+                                </tr>
+                                </tbody>
+
+                                <tfoot class="table-light fw-bold">
+                                <tr class="total-row">
+                                    <td colspan="4" class="text-end">Tổng cộng:</td>
+                                    <td class="text-danger text-end"
+                                        th:text="${#numbers.formatDecimal(totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                                    </td>
+                                </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div> <!-- row -->
+    </div> <!-- container -->
+</div>
+</body>
+</html>

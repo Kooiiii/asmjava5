@@ -32,6 +32,6 @@ public class Order {
     @ManyToOne
     @JoinColumn(name = "MaDC")
     private Address shippingAddress;
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<OrderDetail> orderDetails;
 }
