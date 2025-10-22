@@ -35,4 +35,7 @@ public class ProductVariant {
     @ManyToOne
     @JoinColumn(name = "MaMau", nullable = false)
     private Color color;
+
+    @Column(name = "TrangThai", nullable = false)
+    private String trangThai = "Đang kinh doanh";
 }

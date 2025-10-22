@@ -5,4 +5,6 @@ import java.util.List;
 
 public interface ColorService {
     List<Color> findAll();
+
+    Color findById(Integer id);
 }

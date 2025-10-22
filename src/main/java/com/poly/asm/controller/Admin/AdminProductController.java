@@ -137,7 +137,7 @@ public class AdminProductController {
             redirectAttrs.addFlashAttribute("error", "Database error: " + ex.getMostSpecificCause().getMessage());
             return "redirect:/admin/products/edit/" + (product.getId() != null ? product.getId() : "");
         }
-        return "redirect:/admin/products";
+        return "redirect:/admin/products/edit/" + (product.getId() != null ? product.getId() : "");
     }
 
     @GetMapping("/delete/{id}")

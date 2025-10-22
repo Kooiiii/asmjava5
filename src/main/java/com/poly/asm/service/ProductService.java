@@ -15,7 +15,8 @@ public interface ProductService {
     List<Product> findByBrandAndCategory(Integer brandId, Integer categoryId);
     Product save(Product product);
     void delete(Integer id);
-
+    void deleteVariant(Integer productId, Integer variantId);
+    void addVariant(Integer productId);
     List<Product> searchByName(String keyword);
 
     Page<Product> findAll(Pageable pageable);

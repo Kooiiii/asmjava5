@@ -74,54 +74,101 @@
 
             <!-- Thông tin biến thể (Variant) -->
             <div class="card mb-3">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">Thông tin biến thể</h5>
+                    <div class="d-flex gap-2">
+                        <!-- Dropdown filter trạng thái -->
+                        <select class="form-select form-select-sm" id="statusFilter" style="width: auto;">
+                            <option value="all">Tất cả trạng thái</option>
+                            <option value="dang_kinh_doanh" selected>Đang kinh doanh</option>
+                            <option value="ngung_kinh_doanh">Ngừng kinh doanh</option>
+                        </select>
+                        <a class="btn btn-success btn-sm" th:href="@{'/admin/products/' + ${product.id} + '/variants/add'}">
+                            + Thêm biến thể
+                        </a>
+                    </div>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Màu sắc</label>
-                            <select class="form-select" th:field="*{variants[0].color}" required>
-                                <option value="">Chọn màu sắc</option>
-                                <option th:each="color : ${colors}"
-                                        th:value="${color.id}"
-                                        th:selected="${product.variants[0].color != null && product.variants[0].color.id == color.id}"
-                                        th:text="${color.name}"></option>
-                            </select>
-                            <div class="text-danger mt-1" th:if="${#fields.hasErrors('variants[0].color')}">
-                                <small th:each="err : ${#fields.errors('variants[0].color')}" th:text="${err}"></small>
-                            </div>
-                        </div>
 
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Kích thước</label>
-                            <select class="form-select" th:field="*{variants[0].size}" required>
-                                <option value="">Chọn kích thước</option>
-                                <option th:each="size : ${sizes}"
-                                        th:value="${size.id}"
-                                        th:selected="${product.variants[0].size != null && product.variants[0].size.id == size.id}"
-                                        th:text="${size.name}"></option>
-                            </select>
-                            <div class="text-danger mt-1" th:if="${#fields.hasErrors('variants[0].size')}">
-                                <small th:each="err : ${#fields.errors('variants[0].size')}" th:text="${err}"></small>
-                            </div>
-                        </div>
+                    <div th:if="${#lists.isEmpty(product.variants)}" class="text-muted">
+                        Sản phẩm hiện chưa có biến thể nào.
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Giá</label>
-                            <input type="number" class="form-control" th:field="*{variants[0].price}" step="1000" min="0" required>
-                            <div class="text-danger mt-1" th:if="${#fields.hasErrors('variants[0].price')}">
-                                <small th:each="err : ${#fields.errors('variants[0].price')}" th:text="${err}"></small>
+                    <div th:each="variant, iter : *{variants}" class="border rounded p-3 mb-3 bg-light variant-item"
+                         th:attr="data-status=${variant.trangThai ?: 'Đang kinh doanh'}">
+                        <input type="hidden" th:field="*{variants[__${iter.index}__].id}">
+
+                        <!-- Hiển thị trạng thái -->
+                        <div class="mb-2">
+                            <span class="badge"
+                                  th:classappend="${variant.trangThai == 'Ngừng kinh doanh'} ?
+                                  'bg-danger' : 'bg-success'"
+                                  th:text="${variant.trangThai ?: 'Đang kinh doanh'}">
+                            </span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Màu sắc</label>
+                                <select class="form-select" th:field="*{variants[__${iter.index}__].color}"
+                                        th:disabled="${variant.trangThai == 'Ngừng kinh doanh'}" required>
+                                    <option value="">Chọn màu sắc</option>
+                                    <option th:each="color : ${colors}"
+                                            th:value="${color.id}"
+                                            th:selected="${variant.color != null && variant.color.id == color.id}"
+                                            th:text="${color.name}"></option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Kích thước</label>
+                                <select class="form-select" th:field="*{variants[__${iter.index}__].size}"
+                                        th:disabled="${variant.trangThai == 'Ngừng kinh doanh'}" required>
+                                    <option value="">Chọn kích thước</option>
+                                    <option th:each="size : ${sizes}"
+                                            th:value="${size.id}"
+                                            th:selected="${variant.size != null && variant.size.id == size.id}"
+                                            th:text="${size.name}"></option>
+                                </select>
                             </div>
                         </div>
 
-                        <div class="col-md-6 mb-3">
-                            <label for="stockQuantity" class="form-label">Số lượng tồn kho</label>
-                            <input type="number" class="form-control" id="stockQuantity" th:field="*{variants[0].quantity}" min="0" required>
-                            <div class="text-danger mt-1" th:if="${#fields.hasErrors('variants[0].quantity')}">
-                                <small th:each="err : ${#fields.errors('variants[0].quantity')}" th:text="${err}"></small>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Giá</label>
+                                <input type="number" class="form-control"
+                                       th:field="*{variants[__${iter.index}__].price}"
+                                       th:disabled="${variant.trangThai == 'Ngừng kinh doanh'}"
+                                       step="1000" min="0" required>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Số lượng tồn kho</label>
+                                <input type="number" class="form-control"
+                                       th:field="*{variants[__${iter.index}__].quantity}"
+                                       th:disabled="${variant.trangThai == 'Ngừng kinh doanh'}"
+                                       min="0" required>
+                            </div>
+                        </div>
+
+                        <!-- Action buttons -->
+                        <div class="d-flex gap-2">
+                            <!-- Chỉ hiển thị nút "Ngừng kinh doanh" nếu variant đang kinh doanh -->
+                            <div th:if="${variant.trangThai != 'Ngừng kinh doanh'}">
+                                <a class="btn btn-danger btn-sm"
+                                   th:href="@{'/admin/products/' + ${product.id} + '/variants/delete/' + ${variant.id}}"
+                                   onclick="return confirm('Bạn có chắc muốn ngừng kinh doanh biến thể này?');">
+                                    Ngừng kinh doanh
+                                </a>
+                            </div>
+
+                            <!-- Chỉ hiển thị nút "Tiếp tục kinh doanh" nếu variant đã ngừng kinh doanh -->
+                            <div th:if="${variant.trangThai == 'Ngừng kinh doanh'}">
+                                <a class="btn btn-warning btn-sm"
+                                   th:href="@{'/admin/products/' + ${product.id} + '/variants/restore/' + ${variant.id}}"
+                                   onclick="return confirm('Bạn có chắc muốn tiếp tục kinh doanh biến thể này?');">
+                                    Tiếp tục kinh doanh
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -143,6 +190,43 @@
         </form>
     </div>
 </div>
+
+<!-- JavaScript để xử lý filter -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const statusFilter = document.getElementById('statusFilter');
+        const variantItems = document.querySelectorAll('.variant-item');
+
+        function filterVariants() {
+            const selectedStatus = statusFilter.value;
+
+            variantItems.forEach(item => {
+                const itemStatus = item.getAttribute('data-status');
+                let shouldShow = false;
+
+                if (selectedStatus === 'all') {
+                    shouldShow = true;
+                } else if (selectedStatus === 'dang_kinh_doanh') {
+                    shouldShow = itemStatus !== 'Ngừng kinh doanh';
+                } else if (selectedStatus === 'ngung_kinh_doanh') {
+                    shouldShow = itemStatus === 'Ngừng kinh doanh';
+                }
+
+                if (shouldShow) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Lắng nghe sự kiện thay đổi filter
+        statusFilter.addEventListener('change', filterVariants);
+
+        // Áp dụng filter mặc định khi trang load
+        filterVariants();
+    });
+</script>
 
 </body>
 </html>

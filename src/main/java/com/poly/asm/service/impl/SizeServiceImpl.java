@@ -5,6 +5,7 @@ import com.poly.asm.entity.Size;
 import com.poly.asm.service.SizeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service
@@ -16,5 +17,11 @@ public class SizeServiceImpl implements SizeService {
     @Override
     public List<Size> findAll() {
         return sizeRepository.findAll();
+    }
+
+    @Override
+    public Size findById(Integer id) {
+        return sizeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Size not found with id: " + id));
     }
 }

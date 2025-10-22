@@ -36,7 +36,7 @@ public class Product {
     @JoinColumn(name = "MaTH")
     private Brand brand;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<ProductVariant> variants = new ArrayList<>();
 

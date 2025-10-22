@@ -2,6 +2,7 @@ package com.poly.asm.service.impl;
 
 import com.poly.asm.dao.ProductRepository;
 import com.poly.asm.entity.Product;
+import com.poly.asm.entity.ProductVariant;
 import com.poly.asm.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -87,5 +88,35 @@ public class ProductServiceImpl implements ProductService {
             return productRepository.findAll(pageable);
         }
         return productRepository.searchByName(keyword, pageable);
+    }
+
+    @Override
+    public void deleteVariant(Integer productId, Integer variantId) {
+        Product product = findById(productId);
+        if (product == null) {
+            throw new IllegalArgumentException("Không tìm thấy sản phẩm.");
+        }
+
+        ProductVariant variantToRemove = product.getVariants()
+                .stream()
+                .filter(v -> v.getId().equals(variantId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy biến thể cần xóa."));
+
+        product.getVariants().remove(variantToRemove);
+        save(product);
+    }
+
+    @Override
+    public void addVariant(Integer productId) {
+        Product product = findById(productId);
+        if (product == null) {
+            throw new IllegalArgumentException("Không tìm thấy sản phẩm.");
+        }
+
+        ProductVariant newVariant = new ProductVariant();
+        newVariant.setProduct(product);
+        product.getVariants().add(newVariant);
+        save(product);
     }
 }

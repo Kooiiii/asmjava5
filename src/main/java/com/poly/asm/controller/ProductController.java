@@ -74,16 +74,25 @@ public class ProductController {
             return "redirect:/products";
         }
 
-        // Danh sách biến thể
-        List<ProductVariant> variants = product.getVariants();
+        // Lọc chỉ các biến thể đang kinh doanh (trạng thái khác "Ngừng kinh doanh")
+        List<ProductVariant> activeVariants = product.getVariants().stream()
+                .filter(variant -> variant.getTrangThai() == null ||
+                        !variant.getTrangThai().equals("Ngừng kinh doanh"))
+                .collect(Collectors.toList());
 
-        // Lọc các màu khả dụng
-        Set<Color> availableColors = variants.stream()
+        // Kiểm tra nếu không có biến thể nào đang kinh doanh
+        if (activeVariants.isEmpty()) {
+            model.addAttribute("error", "Sản phẩm hiện không khả dụng");
+            return "redirect:/products";
+        }
+
+        // Lọc các màu khả dụng từ các biến thể đang kinh doanh
+        Set<Color> availableColors = activeVariants.stream()
                 .map(ProductVariant::getColor)
                 .collect(Collectors.toSet());
 
-        // Lọc các kích thước khả dụng
-        Set<Size> availableSizes = variants.stream()
+        // Lọc các kích thước khả dụng từ các biến thể đang kinh doanh
+        Set<Size> availableSizes = activeVariants.stream()
                 .map(ProductVariant::getSize)
                 .collect(Collectors.toSet());
 
@@ -92,10 +101,10 @@ public class ProductController {
         model.addAttribute("availableColors", availableColors);
         model.addAttribute("availableSizes", availableSizes);
 
-        // Gửi luôn danh sách variants để JS xử lý chọn màu / size
-        model.addAttribute("variants", variants);
+        // Gửi danh sách variants đang kinh doanh để JS xử lý chọn màu / size
+        model.addAttribute("variants", activeVariants);
 
-        return "product_detail"; // khớp với file product-detail.html
+        return "product_detail";
     }
 
     @GetMapping("/products/search")
