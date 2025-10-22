@@ -1,14 +1,14 @@
 package com.poly.asm.controller.Admin;
 
 import com.poly.asm.entity.Product;
-import com.poly.asm.service.BrandService;
-import com.poly.asm.service.CategoryService;
-import com.poly.asm.service.ProductService;
-import com.poly.asm.service.UserService;
+import com.poly.asm.entity.ProductVariant;
+import com.poly.asm.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 
@@ -19,14 +19,14 @@ public class AdminProductController {
     @Autowired private ProductService productService;
     @Autowired private CategoryService categoryService;
     @Autowired private BrandService brandService;
+    @Autowired private ColorService colorService;
+    @Autowired private SizeService sizeService;
     @Autowired private UserService userService;
 
     private void addAdminUserToModel(Model model, Principal principal) {
-        userService.findByUsername(principal.getName()).ifPresent(user -> {
-            model.addAttribute("user", user);
-        });
+        if (principal == null) return;
+        userService.findByUsername(principal.getName()).ifPresent(user -> model.addAttribute("user", user));
     }
-
 
     @GetMapping
     public String listProducts(Model model, Principal principal) {
@@ -38,36 +38,94 @@ public class AdminProductController {
     @GetMapping("/add")
     public String addProductForm(Model model, Principal principal) {
         addAdminUserToModel(model, principal);
-        model.addAttribute("product", new Product());
+        Product product = new Product();
+        product.ensurePrimaryVariant(); // prepare variants[0] for form binding
+        model.addAttribute("product", product);
         model.addAttribute("categories", categoryService.findAll());
         model.addAttribute("brands", brandService.findAll());
+        model.addAttribute("colors", colorService.findAll());
+        model.addAttribute("sizes", sizeService.findAll());
         return "add_product";
     }
 
     @PostMapping("/add")
-    public String saveProduct(@ModelAttribute("product") Product product) {
-        productService.save(product);
+    public String saveProduct(@ModelAttribute("product") Product product,
+                              RedirectAttributes redirectAttrs,
+                              Model model,
+                              Principal principal) {
+        addAdminUserToModel(model, principal);
+
+        // validate nested variant required FKs (color/size) before saving
+        if (product.getVariants() != null) {
+            for (ProductVariant v : product.getVariants()) {
+                // use actual entity property names
+                if (v.getColor() == null || v.getSize() == null) {
+                    redirectAttrs.addFlashAttribute("error", "Please select color and size for the variant.");
+                    return "redirect:/admin/products/add";
+                }
+                v.setProduct(product); // ensure back-reference for cascade
+            }
+        }
+
+        try {
+            productService.save(product);
+            redirectAttrs.addFlashAttribute("success", "Product saved.");
+        } catch (DataIntegrityViolationException ex) {
+            redirectAttrs.addFlashAttribute("error", "Database error: " + ex.getMostSpecificCause().getMessage());
+            return "redirect:/admin/products/add";
+        }
         return "redirect:/admin/products";
     }
 
     @GetMapping("/edit/{id}")
     public String editProductForm(@PathVariable("id") Integer id, Model model, Principal principal) {
         addAdminUserToModel(model, principal);
-        model.addAttribute("product", productService.findById(id));
+        Product product = productService.findById(id);
+        product.ensurePrimaryVariant();
+        model.addAttribute("product", product);
         model.addAttribute("categories", categoryService.findAll());
         model.addAttribute("brands", brandService.findAll());
+        model.addAttribute("colors", colorService.findAll());
+        model.addAttribute("sizes", sizeService.findAll());
         return "edit_product";
     }
 
     @PostMapping("/update")
-    public String updateProduct(@ModelAttribute("product") Product product) {
-        productService.save(product);
+    public String updateProduct(@ModelAttribute("product") Product product,
+                                RedirectAttributes redirectAttrs,
+                                Model model,
+                                Principal principal) {
+        addAdminUserToModel(model, principal);
+
+        if (product.getVariants() != null) {
+            for (ProductVariant v : product.getVariants()) {
+                if (v.getColor() == null || v.getSize() == null) {
+                    redirectAttrs.addFlashAttribute("error", "Please select color and size for the variant.");
+                    return "redirect:/admin/products/edit/" + (product.getId() != null ? product.getId() : "");
+                }
+                v.setProduct(product);
+            }
+        }
+
+        try {
+            productService.save(product);
+            redirectAttrs.addFlashAttribute("success", "Product updated.");
+        } catch (DataIntegrityViolationException ex) {
+            redirectAttrs.addFlashAttribute("error", "Database error: " + ex.getMostSpecificCause().getMessage());
+            return "redirect:/admin/products/edit/" + (product.getId() != null ? product.getId() : "");
+        }
         return "redirect:/admin/products";
     }
 
     @GetMapping("/delete/{id}")
-    public String deleteProduct(@PathVariable("id") Integer id) {
-        productService.delete(id);
+    public String deleteProduct(@PathVariable("id") Integer id, Principal principal, Model model, RedirectAttributes redirectAttrs) {
+        addAdminUserToModel(model, principal);
+        try {
+            productService.delete(id);
+            redirectAttrs.addFlashAttribute("success", "Product deleted.");
+        } catch (IllegalStateException | DataIntegrityViolationException ex) {
+            redirectAttrs.addFlashAttribute("error", ex.getMessage());
+        }
         return "redirect:/admin/products";
     }
 }

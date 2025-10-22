@@ -45,21 +45,50 @@
     <div class="container mt-5">
         <h2 class="text-center">Danh Sách Sản Phẩm</h2>
 
-        <div class="text-end mb-3" th:if="${user != null && user.role != null && user.role == 'ADMIN'}">
-            <a th:href="@{/products/add}" class="btn btn-success">
+        <div class="text-end mb-3" th:if="${user != null && user.role != null && user.role.toUpperCase() == 'ADMIN'}">
+            <a th:href="@{/admin/products/add}" class="btn btn-success">
                 <i class="fa-solid fa-plus me-2"></i>Thêm Sản Phẩm
             </a>
         </div>
+        <form th:action="@{/products}" method="get" class="row mb-4 align-items-end">
+            <div class="col-md-4">
+                <label for="brandSelect" class="form-label fw-bold">Thương hiệu</label>
+                <select id="brandSelect" name="brandId" class="form-select">
+                    <option th:value="${null}" th:selected="${selectedBrand == null}">Tất cả</option>
+                    <option th:each="brand : ${brands}"
+                            th:value="${brand.id}"
+                            th:text="${brand.name}"
+                            th:selected="${selectedBrand != null && brand.id == selectedBrand}">
+                    </option>
+                </select>
+            </div>
 
+            <div class="col-md-4">
+                <label for="categorySelect" class="form-label fw-bold">Loại sản phẩm</label>
+                <select id="categorySelect" name="categoryId" class="form-select">
+                    <option th:value="${null}" th:selected="${selectedCategory == null}">Tất cả</option>
+                    <option th:each="cat : ${categories}"
+                            th:value="${cat.id}"
+                            th:text="${cat.name}"
+                            th:selected="${selectedCategory != null && cat.id == selectedCategory}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-dark w-100">
+                    <i class="fa-solid fa-filter me-2"></i>Lọc sản phẩm
+                </button>
+            </div>
+        </form>
         <div class="row row-cols-1 row-cols-md-3 g-4">
             <div class="col" th:each="product : ${products}">
                 <div class="card h-100 shadow-sm product-card">
-                    <div th:if="${product.imageUrl != null and product.imageUrl != '' and product.imageUrl.startsWith('http')}">
-                        <img th:src="${product.imageUrl}"
-                             class="card-img-top img-fluid"
-                             alt="Ảnh sản phẩm"
-                             loading="lazy">
-                    </div>
+                    <img th:if="${product.imageUrl != null and product.imageUrl != '' and product.imageUrl.startsWith('http')}"
+                         th:src="${product.imageUrl}"
+                         class="card-img-top img-fluid"
+                         alt="Ảnh sản phẩm"
+                         loading="lazy">
                     <div th:if="${product.imageUrl == null or product.imageUrl == '' or !product.imageUrl.startsWith('http')}"
                          class="no-image">
                         <span>Chưa có ảnh</span>
@@ -69,9 +98,7 @@
                         <h5 class="card-title" th:text="${product.name}"></h5>
                         <p class="card-text">
                             <strong>Giá:</strong>
-                            <span th:if="${!product.variants.empty}"
-                                  th:text="${#numbers.formatDecimal(product.variants[0].price, 0, 'COMMA', 0, 'POINT') + ' VNĐ'}">
-</span>
+                            <span th:text="${#numbers.formatDecimal(product.variants[0].price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span>
 
                             <span th:if="${product.variants.empty}" class="text-danger">Liên hệ</span>
                         </p>
@@ -84,18 +111,18 @@
                             <form th:action="@{/cart/add}" method="post" style="display: inline;">
                                 <input type="hidden" name="variantId" th:value="${product.variants[0].id}">
                                 <input type="hidden" name="quantity" value="1">
-                                <button type="submit" class="btn btn-outline-dark">
+                                <button type="submit" class="btn btn-outline-dark" th:if="${user != null && user.role != null && user.role.toUpperCase() == 'CUSTOMER'}">
                                     <i class="fa-solid fa-cart-plus"></i> Thêm vào giỏ
                                 </button>
                             </form>
                         </div>
-                        <div th:if="${product.variants == null or product.variants.empty}">
+                        <div th:if="${product.variants.empty}">
                             <button class="btn btn-secondary" disabled>Hết hàng</button>
                         </div>
 
-                        <div th:if="${user != null && user.role != null && user.role == 'ADMIN'}">
-                            <a th:href="@{/products/edit/{id}(id=${product.id})}" class="btn btn-warning btn-sm">Sửa</a>
-                            <a th:href="@{/products/delete/{id}(id=${product.id})}" class="btn btn-danger btn-sm"
+                        <div th:if="${user != null && user.role != null && user.role.toUpperCase() == 'ADMIN'}">
+                            <a th:href="@{/admin/products/edit/{id}(id=${product.id})}" class="btn btn-warning btn-sm">Sửa</a>
+                            <a th:href="@{/admin/products/delete/{id}(id=${product.id})}" class="btn btn-danger btn-sm"
                                onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">Xóa</a>
                         </div>
                     </div>

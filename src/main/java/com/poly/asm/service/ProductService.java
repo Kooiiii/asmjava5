@@ -8,9 +8,10 @@ public interface ProductService {
     List<Product> findAll();
     Product findById(Integer id);
     List<Product> findByCategoryId(Integer categoryId);
+    List<Product> findByBrandId(Integer brandId);
+    List<Product> findByBrandAndCategory(Integer brandId, Integer categoryId);
     Product save(Product product);
     void delete(Integer id);
 
-    // ✅ Thêm hàm tìm kiếm theo tên (Controller cần)
     List<Product> searchByName(String keyword);
 }

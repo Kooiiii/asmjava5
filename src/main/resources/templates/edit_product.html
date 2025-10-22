@@ -10,9 +10,21 @@
 <div layout:fragment="content">
     <div class="container mt-5">
         <h2 class="text-center mb-4">Chỉnh Sửa Sản Phẩm</h2>
-        <form th:action="@{/products/update}" method="post" th:object="${product}" class="mx-auto" style="max-width: 600px;">
+
+        <!-- Hiển thị thông báo lỗi/success -->
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <form th:action="@{/admin/products/update}" method="post" th:object="${product}" class="mx-auto" style="max-width: 600px;">
             <input type="hidden" th:field="*{id}">
 
+            <!-- Thông tin cơ bản sản phẩm -->
             <div class="mb-3">
                 <label class="form-label">Tên sản phẩm</label>
                 <input type="text" class="form-control" th:field="*{name}" required>
@@ -29,19 +41,90 @@
                 </div>
             </div>
 
-            <div class="mb-3">
-                <label class="form-label">Giá</label>
-                <input type="number" class="form-control" th:field="*{price}" step="1" min="0" required>
-                <div class="text-danger mt-1" th:if="${#fields.hasErrors('price')}">
-                    <small th:each="err : ${#fields.errors('price')}" th:text="${err}"></small>
+            <!-- Danh mục và Thương hiệu -->
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Danh mục</label>
+                    <select class="form-select" th:field="*{category}" required>
+                        <option value="">Chọn danh mục</option>
+                        <option th:each="category : ${categories}"
+                                th:value="${category.id}"
+                                th:selected="${product.category != null && product.category.id == category.id}"
+                                th:text="${category.name}"></option>
+                    </select>
+                    <div class="text-danger mt-1" th:if="${#fields.hasErrors('category')}">
+                        <small th:each="err : ${#fields.errors('category')}" th:text="${err}"></small>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Thương hiệu</label>
+                    <select class="form-select" th:field="*{brand}" required>
+                        <option value="">Chọn thương hiệu</option>
+                        <option th:each="brand : ${brands}"
+                                th:value="${brand.id}"
+                                th:selected="${product.brand != null && product.brand.id == brand.id}"
+                                th:text="${brand.name}"></option>
+                    </select>
+                    <div class="text-danger mt-1" th:if="${#fields.hasErrors('brand')}">
+                        <small th:each="err : ${#fields.errors('brand')}" th:text="${err}"></small>
+                    </div>
                 </div>
             </div>
 
-            <div class="mb-3">
-                <label for="stockQuantity" class="form-label">Số lượng tồn kho</label>
-                <input type="number" class="form-control" id="stockQuantity" name="stockQuantity" th:field="*{stockQuantity}" min="0" required>
-                <div class="text-danger mt-1" th:if="${#fields.hasErrors('stockQuantity')}">
-                    <small th:each="err : ${#fields.errors('stockQuantity')}" th:text="${err}"></small>
+            <!-- Thông tin biến thể (Variant) -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Thông tin biến thể</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Màu sắc</label>
+                            <select class="form-select" th:field="*{variants[0].color}" required>
+                                <option value="">Chọn màu sắc</option>
+                                <option th:each="color : ${colors}"
+                                        th:value="${color.id}"
+                                        th:selected="${product.variants[0].color != null && product.variants[0].color.id == color.id}"
+                                        th:text="${color.name}"></option>
+                            </select>
+                            <div class="text-danger mt-1" th:if="${#fields.hasErrors('variants[0].color')}">
+                                <small th:each="err : ${#fields.errors('variants[0].color')}" th:text="${err}"></small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Kích thước</label>
+                            <select class="form-select" th:field="*{variants[0].size}" required>
+                                <option value="">Chọn kích thước</option>
+                                <option th:each="size : ${sizes}"
+                                        th:value="${size.id}"
+                                        th:selected="${product.variants[0].size != null && product.variants[0].size.id == size.id}"
+                                        th:text="${size.name}"></option>
+                            </select>
+                            <div class="text-danger mt-1" th:if="${#fields.hasErrors('variants[0].size')}">
+                                <small th:each="err : ${#fields.errors('variants[0].size')}" th:text="${err}"></small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Giá</label>
+                            <input type="number" class="form-control" th:field="*{variants[0].price}" step="1000" min="0" required>
+                            <div class="text-danger mt-1" th:if="${#fields.hasErrors('variants[0].price')}">
+                                <small th:each="err : ${#fields.errors('variants[0].price')}" th:text="${err}"></small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="stockQuantity" class="form-label">Số lượng tồn kho</label>
+                            <input type="number" class="form-control" id="stockQuantity" th:field="*{variants[0].quantity}" min="0" required>
+                            <div class="text-danger mt-1" th:if="${#fields.hasErrors('variants[0].quantity')}">
+                                <small th:each="err : ${#fields.errors('variants[0].quantity')}" th:text="${err}"></small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -54,8 +137,8 @@
             </div>
 
             <div class="text-center">
-                <button type="submit" class="btn btn-primary">Cập nhật</button>
-                <a th:href="@{/products}" class="btn btn-secondary ms-2">Quay lại</a>
+                <button type="submit" class="btn btn-primary btn-lg">Cập nhật</button>
+                <a th:href="@{/admin/products}" class="btn btn-secondary btn-lg ms-2">Quay lại</a>
             </div>
         </form>
     </div>

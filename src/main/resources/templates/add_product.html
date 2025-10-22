@@ -10,45 +10,129 @@
 <div layout:fragment="content">
     <div class="container mt-5">
         <h2 class="text-center mb-4">Thêm sản phẩm mới</h2>
-        <form th:action="@{/products/add-product}" th:object="${product}" method="post" class="mx-auto" style="max-width: 600px;">
+
+        <!-- Hiển thị thông báo lỗi/success -->
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <form th:action="@{/admin/products/add}" th:object="${product}" method="post" class="mx-auto" style="max-width: 600px;">
+            <!-- Thông tin cơ bản sản phẩm -->
             <div class="mb-3">
                 <label for="name" class="form-label">Tên sản phẩm</label>
-                <input type="text" class="form-control" id="name" name="name" th:field="*{name}" required>
+                <input type="text" class="form-control" id="name" th:field="*{name}" required>
                 <div class="text-danger" th:if="${#fields.hasErrors('name')}">
                     <small th:each="err : ${#fields.errors('name')}" th:text="${err}"></small>
                 </div>
             </div>
+
             <div class="mb-3">
                 <label for="description" class="form-label">Mô tả</label>
-                <textarea class="form-control" id="description" name="description" th:field="*{description}" rows="3" required></textarea>
+                <textarea class="form-control" id="description" th:field="*{description}" rows="3" required></textarea>
                 <div class="text-danger" th:if="${#fields.hasErrors('description')}">
                     <small th:each="err : ${#fields.errors('description')}" th:text="${err}"></small>
                 </div>
             </div>
-            <div class="mb-3">
-                <label for="price" class="form-label">Giá</label>
-                <input type="number" class="form-control" id="price" name="price" th:field="*{price}" min="0" step="1000" required>
-                <div class="text-danger" th:if="${#fields.hasErrors('price')}">
-                    <small th:each="err : ${#fields.errors('price')}" th:text="${err}"></small>
+
+            <!-- Danh mục và Thương hiệu -->
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="category" class="form-label">Danh mục</label>
+                    <select class="form-select" id="category" th:field="*{category}" required>
+                        <option value="">Chọn danh mục</option>
+                        <option th:each="category : ${categories}"
+                                th:value="${category.id}"
+                                th:text="${category.name}"></option>
+                    </select>
+                    <div class="text-danger" th:if="${#fields.hasErrors('category')}">
+                        <small th:each="err : ${#fields.errors('category')}" th:text="${err}"></small>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="brand" class="form-label">Thương hiệu</label>
+                    <select class="form-select" id="brand" th:field="*{brand}" required>
+                        <option value="">Chọn thương hiệu</option>
+                        <option th:each="brand : ${brands}"
+                                th:value="${brand.id}"
+                                th:text="${brand.name}"></option>
+                    </select>
+                    <div class="text-danger" th:if="${#fields.hasErrors('brand')}">
+                        <small th:each="err : ${#fields.errors('brand')}" th:text="${err}"></small>
+                    </div>
                 </div>
             </div>
-            <div class="mb-3">
-                <label for="stockQuantity" class="form-label">Số lượng tồn kho</label>
-                <input type="number" class="form-control" id="stockQuantity" name="stockQuantity" th:field="*{stockQuantity}" min="0" required>
-                <div class="text-danger" th:if="${#fields.hasErrors('stockQuantity')}">
-                    <small th:each="err : ${#fields.errors('stockQuantity')}" th:text="${err}"></small>
+
+            <!-- Thông tin biến thể (Variant) -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Thông tin biến thể</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="color" class="form-label">Màu sắc</label>
+                            <select class="form-select" id="color" th:field="*{variants[0].color}" required>
+                                <option value="">Chọn màu sắc</option>
+                                <option th:each="color : ${colors}"
+                                        th:value="${color.id}"
+                                        th:text="${color.name}"></option>
+                            </select>
+                            <div class="text-danger" th:if="${#fields.hasErrors('variants[0].color')}">
+                                <small th:each="err : ${#fields.errors('variants[0].color')}" th:text="${err}"></small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="size" class="form-label">Kích thước</label>
+                            <select class="form-select" id="size" th:field="*{variants[0].size}" required>
+                                <option value="">Chọn kích thước</option>
+                                <option th:each="size : ${sizes}"
+                                        th:value="${size.id}"
+                                        th:text="${size.name}"></option>
+                            </select>
+                            <div class="text-danger" th:if="${#fields.hasErrors('variants[0].size')}">
+                                <small th:each="err : ${#fields.errors('variants[0].size')}" th:text="${err}"></small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="price" class="form-label">Giá</label>
+                            <input type="number" class="form-control" id="price" th:field="*{variants[0].price}" min="0" step="1000" required>
+                            <div class="text-danger" th:if="${#fields.hasErrors('variants[0].price')}">
+                                <small th:each="err : ${#fields.errors('variants[0].price')}" th:text="${err}"></small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="stockQuantity" class="form-label">Số lượng tồn kho</label>
+                            <input type="number" class="form-control" id="stockQuantity" th:field="*{variants[0].quantity}" min="0" required>
+                            <div class="text-danger" th:if="${#fields.hasErrors('variants[0].quantity')}">
+                                <small th:each="err : ${#fields.errors('variants[0].quantity')}" th:text="${err}"></small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+
             <div class="mb-3">
                 <label for="imageUrl" class="form-label">Hình ảnh URL</label>
-                <input type="text" class="form-control" id="imageUrl" name="imageUrl" th:field="*{imageUrl}" placeholder="https://example.com/image.jpg">
+                <input type="text" class="form-control" id="imageUrl" th:field="*{imageUrl}" placeholder="https://example.com/image.jpg">
                 <div class="text-danger" th:if="${#fields.hasErrors('imageUrl')}">
                     <small th:each="err : ${#fields.errors('imageUrl')}" th:text="${err}"></small>
                 </div>
             </div>
+
             <div class="text-center">
                 <button type="submit" class="btn btn-primary btn-lg">Thêm sản phẩm</button>
-                <a th:href="@{/products}" class="btn btn-secondary btn-lg ms-2">Quay lại</a>
+                <a th:href="@{/admin/products}" class="btn btn-secondary btn-lg ms-2">Quay lại</a>
             </div>
         </form>
     </div>

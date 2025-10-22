@@ -18,4 +18,5 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     // lấy sản phẩm theo tên danh mục sản phẩm
     @Query("SELECT p FROM Product p WHERE p.category.name = ?1")
     List<Product> findAllByCategoryName(String categoryName);
+    List<Product> findByBrandIdAndCategoryId(Integer brandId, Integer categoryId);
 }
