@@ -3,19 +3,7 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
 <head>
-    <title>Quản lý Đơn Hàng</title>
-    <style>
-        .table th, .table td {
-            vertical-align: middle;
-        }
-        .customer-info small {
-            font-size: 0.85em;
-        }
-        .action-buttons a, .action-buttons button {
-            margin-bottom: 2px;
-        }
-    </style>
-</head>
+    <title>Quản lý Đơn Hàng - Test Table</title> </head>
 <body>
 
 <div layout:fragment="content">
@@ -57,10 +45,11 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
 
+
         <div class="card shadow-sm">
             <div class="card-header bg-dark text-white fw-bold d-flex justify-content-between align-items-center">
                 <span><i class="fa-solid fa-list me-2"></i>Danh Sách Đơn Hàng</span>
-                <span class="badge bg-light text-dark" th:text="${ordersPage != null ? ordersPage.totalElements : #lists.size(orders)} + ' đơn'"></span>
+                <span class="badge bg-light text-dark" th:text="${#lists.size(orders)} + ' đơn'"></span>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -73,60 +62,44 @@
                             <th scope="col">Ngày Đặt</th>
                             <th scope="col">Tổng Tiền</th>
                             <th scope="col">Trạng Thái</th>
-                            <th scope="col" style="min-width: 120px;">Hành Động</th> </tr>
+                            <th scope="col">Hành Động</th>
+                        </tr>
                         </thead>
+
                         <tbody>
-                        <th:block th:if="${ordersPage != null and !ordersPage.empty}" th:each="order, iterStat : ${ordersPage.content}">
-                            <tr th:with="totalAmount=${order.orderDetails.stream().mapToDouble(d -> d.price.doubleValue() * d.quantity).sum()}"> <td th:text="${order.id}"></td>
-                                <td class="text-start customer-info">
+                        <th:block th:if="${not #lists.isEmpty(orders)}">
+                            <tr th:each="order : ${orders}">
+                                <td th:text="${order.id}"></td>
+                                <td class="text-start">
                                     <span th:text="${order.customer?.fullName} ?: ${order.customer?.username}"></span><br/>
                                     <small class="text-muted" th:text="${order.customer?.email}"></small>
                                 </td>
-                                <td th:text="${#dates.format(order.orderDate, 'dd/MM/yy HH:mm')}"></td> <td class="fw-bold text-danger" th:text="${#numbers.formatDecimal(totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                                <td th:text="${#dates.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></td>
+
+                                <td>(Tổng tiền tạm ẩn)</td>
+                                <td>
+                                        <span th:switch="${order.status}" class="badge fs-6 text-nowrap"
+                                              th:classappend="${order.status == 'Chờ duyệt' ? 'bg-warning text-dark' :
+                                                               order.status == 'Đang xử lý' ? 'bg-info text-dark' :
+                                                               order.status == 'Đang giao' ? 'bg-primary' :
+                                                               order.status == 'Đã giao' ? 'bg-success' :
+                                                               order.status == 'Đã hủy' ? 'bg-danger' : 'bg-secondary'}">
+                                            <span th:text="${order.status}"></span>
+                                        </span>
                                 </td>
                                 <td>
-                                    <span th:switch="${order.status}" class="badge fs-6 text-nowrap" th:classappend="${order.status == 'Chờ duyệt' ? 'bg-warning text-dark' :
-                                                           order.status == 'Đang xử lý' ? 'bg-info text-dark' :
-                                                           order.status == 'Đang giao' ? 'bg-primary' :
-                                                           order.status == 'Đã giao' ? 'bg-success' :
-                                                           order.status == 'Đã hủy' ? 'bg-danger' : 'bg-secondary'}">
-                                        <span th:text="${order.status}"></span>
-                                    </span>
-                                </td>
-                                <td class="action-buttons">
                                     <a th:href="@{/admin/orders/{id}(id=${order.id})}" class="btn btn-sm btn-outline-primary me-1" title="Xem chi tiết">
                                         <i class="fa-solid fa-eye"></i> Xem
                                     </a>
-                                    <a th:href="@{/admin/orders/delete/{id}(id=${order.id})}"
-                                       th:onclick="'return confirm(\'Xóa đơn hàng #' + ${order.id} + '? Không thể hoàn tác!\');'"
-                                       class="btn btn-sm btn-outline-danger" title="Xóa đơn hàng">
-                                        <i class="fa-solid fa-trash"></i> Xóa
-                                    </a>
+
+                                    <button class="btn btn-sm btn-outline-danger" disabled>Xóa (Tạm ẩn)</button>
                                 </td>
                             </tr>
                         </th:block>
-                        <tr th:if="${ordersPage == null or ordersPage.empty}">
-                            <td colspan="6" class="text-center text-muted py-4 fst-italic">Không có đơn hàng nào.</td>
+                        <tr th:if="${#lists.isEmpty(orders)}">
+                            <td colspan="6" class="text-center text-muted py-4 fst-italic">Không có đơn hàng nào khớp với bộ lọc.</td>
                         </tr>
                         </tbody>
-                    </table>
-                </div> </div> </div> <nav aria-label="Page navigation" class="mt-4" th:if="${ordersPage != null and ordersPage.totalPages > 1}">
-        <ul class="pagination justify-content-center">
-            <li class="page-item" th:classappend="${ordersPage.first} ? 'disabled'">
-                <a class="page-link" th:href="@{/admin/orders(page=${ordersPage.number - 1}, size=${ordersPage.size}, status=${currentStatus})}">Trước</a>
-            </li>
 
-            <li class="page-item" th:each="pageNumber : ${#numbers.sequence(0, ordersPage.totalPages - 1)}"
-                th:classappend="${pageNumber == ordersPage.number} ? 'active'">
-                <a class="page-link" th:href="@{/admin/orders(page=${pageNumber}, size=${ordersPage.size}, status=${currentStatus})}"
-                   th:text="${pageNumber + 1}"></a>
-            </li>
-
-            <li class="page-item" th:classappend="${ordersPage.last} ? 'disabled'">
-                <a class="page-link" th:href="@{/admin/orders(page=${ordersPage.number + 1}, size=${ordersPage.size}, status=${currentStatus})}">Sau</a>
-            </li>
-        </ul>
-    </nav>
-
-    </div> </div> </body>
+                    </table> </div> </div> </div> </div> </div> </body>
 </html>
