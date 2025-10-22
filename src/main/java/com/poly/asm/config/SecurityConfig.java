@@ -37,7 +37,7 @@ public class SecurityConfig {
                     String springRole = convertToSpringRole(role);
                     return org.springframework.security.core.userdetails.User.builder()
                             .username(user.getUsername())
-                            .password(user.getPassword()) // Password không mã hóa
+                            .password(user.getPassword())
                             .roles(springRole)
                             .build();
                 })

@@ -1,4 +1,4 @@
-package com.poly.asm.controller.Admin; // Package Admin
+package com.poly.asm.controller.Admin;
 
 import com.poly.asm.entity.Order;
 import com.poly.asm.service.OrderService;
@@ -14,7 +14,7 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/admin/orders")
-@PreAuthorize("hasAuthority('Admin')") // Đảm bảo chỉ Admin vào được
+@PreAuthorize("hasAuthority('Admin')")
 public class AdminOrderController {
     @Autowired
     private OrderService orderService;
@@ -52,27 +52,25 @@ public class AdminOrderController {
 
     @PostMapping("/update-status")
     public String updateOrderStatus(@RequestParam("orderId") Integer orderId,
-                                    @RequestParam("status") String newStatus, // Trạng thái mới từ form
+                                    @RequestParam("status") String newStatus,
                                     RedirectAttributes redirectAttributes) {
         try {
             orderService.updateOrderStatus(orderId, newStatus);
             redirectAttributes.addFlashAttribute("successMessage", "Đã cập nhật trạng thái đơn hàng #" + orderId + " thành công!");
-        } catch (RuntimeException e) { // Bắt lỗi cụ thể hơn nếu cần
+        } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Lỗi cập nhật trạng thái: " + e.getMessage());
         }
-        // Quay lại trang chi tiết đơn hàng vừa cập nhật
         return "redirect:/admin/orders/" + orderId;
     }
 
     @GetMapping("/delete/{id}")
     public String deleteOrder(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes) {
         try {
-            orderService.deleteById(id); // Gọi service xóa
+            orderService.deleteById(id);
             redirectAttributes.addFlashAttribute("successMessage", "Đã xóa đơn hàng #" + id + " thành công!");
         } catch (Exception e) { // Bắt lỗi chung
             redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi xóa đơn hàng #" + id + ": " + e.getMessage());
         }
-        // Sau khi xóa thì quay về trang danh sách
         return "redirect:/admin/orders";
     }
 }
