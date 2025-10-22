@@ -14,7 +14,7 @@
             <div class="col-md-4">
                 <label for="statusFilter" class="form-label fw-bold">Lọc theo trạng thái:</label>
                 <select id="statusFilter" name="status" class="form-select form-select-sm">
-                    <option value="">-- Tất cả trạng thái --</option>
+                    <option value="">Tất cả trạng thái</option>
                     <option value="Chờ duyệt" th:selected="${currentStatus == 'Chờ duyệt'}">Chờ duyệt</option>
                     <option value="Đang xử lý" th:selected="${currentStatus == 'Đang xử lý'}">Đang xử lý</option>
                     <option value="Đang giao" th:selected="${currentStatus == 'Đang giao'}">Đang giao</option>
