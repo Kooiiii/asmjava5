@@ -66,7 +66,8 @@
                    onclick="return confirm('Bạn có chắc chắn muốn xóa toàn bộ giỏ hàng?');">
                     Xóa toàn bộ
                 </a>
-                <a th:href="@{/checkout}" class="btn btn-success">Thanh toán</a>
+				<a th:href="@{/invoice/create}" class="btn btn-success" th:if="${not #lists.isEmpty(cartItems)}">
+								    Thanh toán</a>
             </div>
         </div>
     </div>

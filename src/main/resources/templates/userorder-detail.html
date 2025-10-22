@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Chi tiết đơn hàng</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Chi tiết đơn hàng #<span th:text="${order.id}"></span></h2>
+
+        <div class="mb-3">
+            <strong>Ngày đặt:</strong> <span th:text="${#dates.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></span><br>
+            <strong>Trạng thái:</strong> <span th:text="${order.status}" class="fw-bold text-success"></span><br>
+            <strong>Hình thức thanh toán:</strong> <span th:text="${order.paymentMethod}"></span><br>
+        </div>
+
+        <table class="table table-bordered text-center align-middle">
+            <thead class="table-dark">
+            <tr>
+                <th>Tên sản phẩm</th>
+                <th>Màu sắc</th>
+                <th>Kích thước</th>
+                <th>Giá</th>
+                <th>Số lượng</th>
+                <th>Thành tiền</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="detail : ${order.orderDetails}">
+                <td th:text="${detail.productVariant.product.name}"></td>
+                <td th:text="${detail.productVariant.color.name}"></td>
+                <td th:text="${detail.productVariant.size.name}"></td>
+                <td th:text="${#numbers.formatDecimal(detail.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
+                <td th:text="${detail.quantity}"></td>
+                <td th:text="${#numbers.formatDecimal(detail.price.doubleValue() * detail.quantity, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h4 class="text-end text-danger fw-bold">
+            Tổng tiền: <span th:text="${#numbers.formatDecimal(total, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span>
+        </h4>
+
+        <div class="text-center mt-4">
+            <a th:href="@{/orders}" class="btn btn-secondary">Quay lại danh sách đơn hàng</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

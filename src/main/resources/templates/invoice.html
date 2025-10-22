@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Hóa đơn - 36 Store</title>
+    <style>
+        .invoice-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .invoice-header {
+            border-bottom: 3px solid #343a40;
+            padding-bottom: 25px;
+            margin-bottom: 25px;
+        }
+        .store-name {
+            color: #dc3545;
+            font-weight: bold;
+            font-size: 2rem;
+        }
+        .invoice-title {
+            color: #343a40;
+            font-weight: bold;
+        }
+        .customer-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .table-items {
+            margin: 30px 0;
+        }
+        .table-items th {
+            background: #343a40;
+            color: white;
+            text-align: center;
+        }
+        .total-section {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        .thank-you {
+            border-top: 2px dashed #dee2e6;
+            padding-top: 20px;
+            margin-top: 25px;
+        }
+        .print-btn {
+            background: #007bff;
+            border: none;
+            padding: 10px 25px;
+            font-size: 1.1rem;
+        }
+        .continue-btn {
+            background: #28a745;
+            border: none;
+            padding: 10px 25px;
+            font-size: 1.1rem;
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .invoice-container {
+                box-shadow: none;
+                border: none;
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="container mt-4 mb-5">
+        <div class="invoice-container">
+            <!-- Header hóa đơn -->
+            <div class="invoice-header">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h1 class="store-name">36 STORE</h1>
+                        <p class="mb-1"><strong>Điện thoại:</strong> 0123.456.789</p>
+                        <p class="mb-0"><strong>Email:</strong> contact@36store.com</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <h2 class="invoice-title">HÓA ĐƠN THANH TOÁN</h2>
+                        <p class="mb-1 fs-5"><strong>Mã HD:</strong> #<span th:text="${invoice.id}">25</span></p>
+                        <p class="mb-0 fs-5"><strong>Ngày lập:</strong> 
+                            <span th:text="${#temporals.format(invoice.createdDate, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:30</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thông tin khách hàng -->
+            <div class="customer-info">
+                <h5 class="text-dark mb-3">📋 Thông tin khách hàng</h5>
+                <p class="mb-2"><strong>👤 Họ tên:</strong> <span th:text="${user.fullName}">Nguyễn Văn A</span></p>
+                <p class="mb-2"><strong>📧 Email:</strong> <span th:text="${user.email}">nguyenvana@example.com</span></p>
+                <p class="mb-2"><strong>📞 Điện thoại:</strong> <span th:text="${user.phone}">0987.654.321</span></p>
+                <p class="mb-0"><strong>📍 Địa chỉ:</strong> <span th:text="${customerAddress}">123 Đường ABC, Quận 1, TP.HCM</span></p>
+            </div>
+
+            <!-- Chi tiết đơn hàng -->
+            <div class="table-items">
+                <h5 class="mb-3">🛒 Chi tiết đơn hàng</h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th width="5%">STT</th>
+                                <th width="60%">Sản phẩm</th>
+                                <th width="15%">Đơn giá</th>
+                                <th width="10%">SL</th>
+                                <th width="20%">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="item, iter : ${invoice.invoiceItems}">
+                                <td class="text-center" th:text="${iter.index + 1}">1</td>
+                                <td th:text="${item.productVariant.product.name}">Áo thun Nike Dri-FIT</td>
+                                <td class="text-end" th:text="${#numbers.formatDecimal(item.unitPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">250,000 VNĐ</td>
+                                <td class="text-center" th:text="${item.quantity}">2</td>
+                                <td class="text-end text-success fw-bold">
+                                    <span th:text="${#numbers.formatDecimal(item.unitPrice.doubleValue() * item.quantity, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
+                                        500,000 VNĐ
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tổng tiền -->
+            <div class="total-section">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <p class="mb-2 fs-5"><strong>Phương thức thanh toán:</strong> 
+                            <span th:text="${invoice.paymentMethod}">COD</span>
+                        </p>
+                        <p class="mb-0 fs-5"><strong>Trạng thái đơn hàng:</strong> 
+                            <span class="badge bg-warning fs-6">Chờ duyệt</span>
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <h3 class="mb-0">
+                            Tổng tiền: 
+                            <span th:text="${#numbers.formatDecimal(invoice.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
+                                600,000 VNĐ
+                            </span>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lời cảm ơn -->
+            <div class="thank-you text-center">
+                <h4 class="text-success mb-2">Cảm ơn bạn đã mua sắm tại 36 Store! 🎉</h4>
+                <p class="text-muted mb-0">Đơn hàng của bạn sẽ được xử lý trong thời gian sớm nhất.</p>
+            </div>
+
+            <!-- Nút hành động -->
+            <div class="row mt-4 no-print">
+                <div class="col-12 text-center">
+                    <button class="btn print-btn text-white me-2" onclick="window.print()">
+                        🖨️ In hóa đơn
+                    </button>
+                    <a th:href="@{/}" class="btn btn-outline-secondary">
+                        🏠 Về trang chủ
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>

@@ -101,8 +101,11 @@
 
                         <!-- Menu cho người dùng đã đăng nhập -->
                         <div th:if="${user != null}">
-                            <li><a class="dropdown-item" href="/profile"><i class="fa-solid fa-id-badge me-2"></i>Thông tin tài khoản</a></li>
-
+                            <li><a class="dropdown-item" href="/profile"><i class="fa-solid fa-id-badge me-2"></i>Thông tin tài khoản</a></li> <li th:if="${user.role != null && user.role.toUpperCase() == 'CUSTOMER'}">
+                            <a class="dropdown-item" href="/orders">
+                                <i class="fa-solid fa-receipt me-2"></i>Đơn hàng của tôi
+                            </a>
+                        </li>
                             <!-- Menu quản lý cho ADMIN -->
                             <div th:if="${user != null && user.role != null && user.role.toUpperCase() == 'ADMIN'}">
                                 <li><hr class="dropdown-divider"></li>
