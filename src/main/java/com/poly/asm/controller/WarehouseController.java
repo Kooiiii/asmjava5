@@ -1,9 +1,7 @@
 package com.poly.asm.controller;
 
-import com.poly.asm.dao.ProductRepository;
-import com.poly.asm.dao.SizeRepository;
-import com.poly.asm.dao.WarehouseService;
-import com.poly.asm.dao.WarehouseReceiptRepository;
+import com.poly.asm.config.UserSession;
+import com.poly.asm.dao.*;
 import com.poly.asm.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -15,7 +13,8 @@ import java.math.BigDecimal;
 @Controller
 @RequestMapping("/warehouse")
 public class WarehouseController {
-
+    @Autowired
+    private UserSession userSession;
     @Autowired
     private WarehouseService warehouseService;
 
@@ -27,17 +26,18 @@ public class WarehouseController {
 
     @Autowired
     private WarehouseReceiptRepository warehouseRepo;
-
+    @Autowired
+    private ColorRepository colorRepo;
     // ✅ Hiển thị form và danh sách phiếu nhập
     @GetMapping
     public String showForm(Model model) {
         model.addAttribute("products", productRepo.findAll());
         model.addAttribute("sizes", sizeRepo.findAll());
+        model.addAttribute("colors", colorRepo.findAll()); // ✅ thêm dòng này
         model.addAttribute("warehouseList", warehouseRepo.findAll());
         return "warehouse/import";
     }
 
-    // ✅ Xử lý khi người dùng nhấn "Nhập Kho"
     @PostMapping
     public String importProduct(@RequestParam Integer productId,
                                 @RequestParam Integer sizeId,
@@ -46,17 +46,21 @@ public class WarehouseController {
                                 @RequestParam BigDecimal price,
                                 Model model) {
 
-        // Giả lập nhân viên đang đăng nhập
-        User staff = new User();
-        staff.setId(2);
+        // ✅ Lấy nhân viên đang đăng nhập
+        User staff = userSession.getCurrentUser();
+        if (staff == null) {
+            model.addAttribute("errorMessage", "Vui lòng đăng nhập trước khi nhập kho!");
+            return "warehouse/import";
+        }
 
         warehouseService.importWarehouse(productId, sizeId, colorId, quantity, price, staff);
 
-        // Sau khi nhập, load lại dữ liệu trên cùng trang
+        // Load lại dữ liệu
         model.addAttribute("products", productRepo.findAll());
         model.addAttribute("sizes", sizeRepo.findAll());
+        model.addAttribute("colors", colorRepo.findAll());
         model.addAttribute("warehouseList", warehouseRepo.findAll());
-        model.addAttribute("success", true);
+        model.addAttribute("successMessage", "Nhập kho thành công!");
 
         return "warehouse/import";
     }
