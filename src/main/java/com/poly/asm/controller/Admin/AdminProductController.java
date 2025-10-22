@@ -5,6 +5,9 @@ import com.poly.asm.entity.ProductVariant;
 import com.poly.asm.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -29,9 +32,31 @@ public class AdminProductController {
     }
 
     @GetMapping
-    public String listProducts(Model model, Principal principal) {
+    public String listProducts(@RequestParam(defaultValue = "1") int page,
+                               @RequestParam(required = false) String brandId,
+                               @RequestParam(required = false) String categoryId,
+                               Model model, Principal principal) {
         addAdminUserToModel(model, principal);
-        model.addAttribute("products", productService.findAll());
+
+        Integer brand = (brandId != null && !brandId.isEmpty()) ? Integer.parseInt(brandId) : null;
+        Integer category = (categoryId != null && !categoryId.isEmpty()) ? Integer.parseInt(categoryId) : null;
+
+        int pageSize = 9;
+        Pageable pageable = PageRequest.of(page - 1, pageSize);
+
+        Page<Product> productPage = (brand == null && category == null)
+                ? productService.findAll(pageable)
+                : productService.findByBrandAndCategory(brand, category, pageable);
+
+        model.addAttribute("products", productPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", productPage.getTotalPages());
+        model.addAttribute("brands", brandService.findAll());
+        model.addAttribute("categories", categoryService.findAll());
+        model.addAttribute("selectedBrand", brand);
+        model.addAttribute("selectedCategory", category);
+        model.addAttribute("user", userService.findByUsername(principal.getName()).orElse(null));
+
         return "products";
     }
 
@@ -55,15 +80,13 @@ public class AdminProductController {
                               Principal principal) {
         addAdminUserToModel(model, principal);
 
-        // validate nested variant required FKs (color/size) before saving
         if (product.getVariants() != null) {
             for (ProductVariant v : product.getVariants()) {
-                // use actual entity property names
                 if (v.getColor() == null || v.getSize() == null) {
                     redirectAttrs.addFlashAttribute("error", "Please select color and size for the variant.");
                     return "redirect:/admin/products/add";
                 }
-                v.setProduct(product); // ensure back-reference for cascade
+                v.setProduct(product);
             }
         }
 

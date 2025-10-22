@@ -8,6 +8,9 @@ import com.poly.asm.entity.Size;
 import com.poly.asm.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,41 +22,47 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Controller
-@RequiredArgsConstructor
 public class ProductController {
 
-    private final ProductService productService;
-    private final UserSession userSession;
-
+    @Autowired private ProductService productService;
+    @Autowired private UserSession userSession;
     @Autowired private CategoryService categoryService;
     @Autowired private BrandService brandService;
     @Autowired private ColorService colorService;
     @Autowired private SizeService sizeService;
 
     @GetMapping("/products")
-    public String products(@RequestParam(required = false) Integer brandId,
-                           @RequestParam(required = false) Integer categoryId,
-                           Model model) {
+    public String products(
+            @RequestParam(required = false) String brandId,
+            @RequestParam(required = false) String categoryId,
+            @RequestParam(defaultValue = "1") int page,
+            Model model) {
+
+        Integer brand = (brandId != null && !brandId.isEmpty()) ? Integer.parseInt(brandId) : null;
+        Integer category = (categoryId != null && !categoryId.isEmpty()) ? Integer.parseInt(categoryId) : null;
 
         model.addAttribute("user", userSession.getCurrentUser());
         model.addAttribute("brands", brandService.findAll());
         model.addAttribute("categories", categoryService.findAll());
 
-        List<Product> products;
+        Pageable pageable = PageRequest.of(page - 1, 9);
+        Page<Product> productPage;
 
-        if (brandId != null && categoryId != null) {
-            products = productService.findByBrandAndCategory(brandId, categoryId);
-        } else if (brandId != null) {
-            products = productService.findByBrandId(brandId);
-        } else if (categoryId != null) {
-            products = productService.findByCategoryId(categoryId);
+        if (brand == null && category == null) {
+            productPage = productService.findAll(pageable);
+        } else if (brand != null && category == null) {
+            productPage = productService.findByBrandId(brand, pageable);
+        } else if (brand == null) {
+            productPage = productService.findByCategoryId(category, pageable);
         } else {
-            products = productService.findAll();
+            productPage = productService.findByBrandAndCategory(brand, category, pageable);
         }
 
-        model.addAttribute("products", products);
-        model.addAttribute("selectedBrand", brandId);
-        model.addAttribute("selectedCategory", categoryId);
+        model.addAttribute("products", productPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", productPage.getTotalPages());
+        model.addAttribute("selectedBrand", brand);
+        model.addAttribute("selectedCategory", category);
 
         return "products";
     }
@@ -90,10 +99,18 @@ public class ProductController {
     }
 
     @GetMapping("/products/search")
-    public String searchProducts(@RequestParam String keyword, Model model) {
+    public String searchProducts(@RequestParam String keyword,
+                                 @RequestParam(defaultValue = "1") int page,
+                                 Model model) {
+        Pageable pageable = PageRequest.of(page - 1, 9);
+        Page<Product> productPage = productService.searchByName(keyword, pageable);
+
         model.addAttribute("user", userSession.getCurrentUser());
-        model.addAttribute("products", productService.findAll());
+        model.addAttribute("products", productPage.getContent());
         model.addAttribute("keyword", keyword);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", productPage.getTotalPages());
+
         return "product-list";
     }
 }
