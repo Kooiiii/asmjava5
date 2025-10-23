@@ -70,7 +70,7 @@ public class AdminProductController {
         model.addAttribute("brands", brandService.findAll());
         model.addAttribute("colors", colorService.findAll());
         model.addAttribute("sizes", sizeService.findAll());
-        return "add_product";
+        return "admin/add_product";
     }
 
     @PostMapping("/add")
@@ -110,7 +110,7 @@ public class AdminProductController {
         model.addAttribute("brands", brandService.findAll());
         model.addAttribute("colors", colorService.findAll());
         model.addAttribute("sizes", sizeService.findAll());
-        return "edit_product";
+        return "admin/edit_product";
     }
 
     @PostMapping("/update")

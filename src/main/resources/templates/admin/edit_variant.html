@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Sửa Biến Thể Sản Phẩm - 36 Store</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Sửa Biến Thể</h2>
+
+        <!-- Hiển thị thông báo -->
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <form th:action="@{/admin/products/{productId}/variants/update/{variantId}(productId=${variant.product.id}, variantId=${variant.id})}"
+              method="post"
+              th:object="${variant}"
+              class="mx-auto"
+              style="max-width: 600px;">
+
+            <input type="hidden" th:field="*{id}">
+            <input type="hidden" th:field="*{product.id}">
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Thông tin sản phẩm</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Tên sản phẩm:</strong> <span th:text="${variant.product.name}"></span></p>
+                    <p><strong>Mã sản phẩm:</strong> <span th:text="${variant.product.id}"></span></p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Màu sắc <span class="text-danger">*</span></label>
+                    <select class="form-select" th:field="*{color}" required>
+                        <option value="">Chọn màu sắc</option>
+                        <option th:each="color : ${colors}"
+                                th:value="${color.id}"
+                                th:selected="${variant.color != null && variant.color.id == color.id}"
+                                th:text="${color.name}"></option>
+                    </select>
+                    <div class="text-danger mt-1" th:if="${#fields.hasErrors('color')}">
+                        <small th:each="err : ${#fields.errors('color')}" th:text="${err}"></small>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Kích thước <span class="text-danger">*</span></label>
+                    <select class="form-select" th:field="*{size}" required>
+                        <option value="">Chọn kích thước</option>
+                        <option th:each="size : ${sizes}"
+                                th:value="${size.id}"
+                                th:selected="${variant.size != null && variant.size.id == size.id}"
+                                th:text="${size.name}"></option>
+                    </select>
+                    <div class="text-danger mt-1" th:if="${#fields.hasErrors('size')}">
+                        <small th:each="err : ${#fields.errors('size')}" th:text="${err}"></small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Giá <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" th:field="*{price}" step="1000" min="0" required>
+                    <div class="text-danger mt-1" th:if="${#fields.hasErrors('price')}">
+                        <small th:each="err : ${#fields.errors('price')}" th:text="${err}"></small>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Số lượng tồn kho <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" th:field="*{quantity}" min="0" required>
+                    <div class="text-danger mt-1" th:if="${#fields.hasErrors('quantity')}">
+                        <small th:each="err : ${#fields.errors('quantity')}" th:text="${err}"></small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Trạng thái</label>
+                <select class="form-select" th:field="*{trangThai}">
+                    <option value="Đang kinh doanh">Đang kinh doanh</option>
+                    <option value="Ngừng kinh doanh">Ngừng kinh doanh</option>
+                </select>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary btn-lg">Cập nhật</button>
+                <a th:href="@{/admin/products/edit/{id}(id=${variant.product.id})}"
+                   class="btn btn-secondary btn-lg ms-2">Quay lại sản phẩm</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>
