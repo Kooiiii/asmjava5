@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
 <head>
@@ -9,10 +10,29 @@
 
 <div layout:fragment="content">
     <div class="container mt-5">
-        <h2 class="text-center mb-4">📋 Danh Sách Người Dùng</h2>
 
+        <!-- ✅ Tiêu đề + nút thêm -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3>📋 Quản lý người dùng</h3>
+            <a th:href="@{/admin/users/add-staff}" class="btn btn-success">
+                ➕ Thêm nhân viên
+            </a>
+        </div>
 
+        <!-- ✅ Form lọc theo vai trò (server-side) -->
+        <form th:action="@{/admin/users}" method="get" class="d-flex justify-content-end mb-4">
+            <div class="input-group w-auto">
+                <select name="role" class="form-select">
+                    <option value="">Tất cả vai trò</option>
+                    <option value="Admin" th:selected="${selectedRole == 'Admin'}">Admin</option>
+                    <option value="Staff" th:selected="${selectedRole == 'Staff'}">Staff</option>
+                    <option value="Customer" th:selected="${selectedRole == 'Customer'}">Customer</option>
+                </select>
+                <button type="submit" class="btn btn-primary ms-2">Lọc</button>
+            </div>
+        </form>
 
+        <!-- ✅ Bảng hiển thị người dùng -->
         <table class="table table-bordered text-center align-middle shadow-sm">
             <thead class="table-dark">
             <tr>
@@ -53,10 +73,13 @@
                 </td>
             </tr>
             </tbody>
-            <script th:if="${alertMessage}" th:inline="javascript">
-                alert([[${alertMessage}]]);
-            </script>
         </table>
+
+        <!-- ✅ Hiển thị thông báo -->
+        <script th:if="${alertMessage}" th:inline="javascript">
+            alert([[${alertMessage}]]);
+        </script>
+
     </div>
 </div>
 

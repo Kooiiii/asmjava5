@@ -2,9 +2,11 @@ package com.poly.asm.service;
 
 import com.poly.asm.entity.Order;
 import com.poly.asm.entity.OrderDetail;
+import org.springframework.data.jpa.repository.JpaRepository;
+
 import java.util.List;
 
-public interface OrderDetailService {
+public interface OrderDetailService  {
 
     // ✅ Lưu chi tiết hóa đơn
     OrderDetail save(OrderDetail detail);

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm Nhân Viên - 36 Store</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">➕ Thêm Nhân Viên Mới</h2>
+
+        <!-- ✅ Hiển thị thông báo -->
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+        <!-- ✅ FORM -->
+        <form th:action="@{/admin/users/add-staff}" th:object="${newStaff}" method="post"
+              class="w-50 mx-auto border p-4 rounded shadow">
+
+        <!-- 🚫 XÓA TOÀN BỘ field th:field="*{role}" hoặc input hidden role -->
+            <!-- ✅ KHÔNG gửi role từ form, controller sẽ gán Staff -->
+            <!-- 🚫 KHÔNG có input hidden id -->
+
+            <div class="mb-3">
+                <label class="form-label">Tên đăng nhập</label>
+                <input type="text" th:field="*{username}" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Mật khẩu</label>
+                <input type="password" th:field="*{password}" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Họ và tên</label>
+                <input type="text" th:field="*{fullName}" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" th:field="*{email}" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Số điện thoại</label>
+                <input type="text" th:field="*{phone}" class="form-control">
+            </div>
+
+            <div class="mb-3">
+                <label for="birthday">Ngày sinh</label>
+                <input type="date" id="birthday" th:field="*{birthday}" class="form-control" />
+            </div>
+
+            <button type="submit" class="btn btn-success w-100">💾 Lưu nhân viên</button>
+            <a th:href="@{/admin/users}" class="btn btn-secondary w-100 mt-2">⬅ Quay lại</a>
+        </form>
+
+
+    </div>
+</div>
+</body>
+</html>

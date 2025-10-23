@@ -17,7 +17,15 @@
 <div layout:fragment="content">
     <div class="container mt-5">
         <h2 class="text-center mb-4">📋 Danh Sách Người Dùng</h2>
-
+        <form th:action="@{/admin/users}" method="get" class="d-flex justify-content-center mb-4">
+            <select name="role" class="form-select me-2" style="width: 200px;">
+                <option value="">-- Chọn vai trò --</option>
+                <option value="Admin" th:selected="${param.role == 'Admin'}">Admin</option>
+                <option value="Staff" th:selected="${param.role == 'Staff'}">Staff</option>
+                <option value="Customer" th:selected="${param.role == 'Customer'}">Customer</option>
+            </select>
+            <button type="submit" class="btn btn-primary">Lọc</button>
+        </form>
         <table class="table table-bordered text-center align-middle">
             <thead class="table-dark">
             <tr>

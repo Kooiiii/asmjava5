@@ -2,6 +2,7 @@ package com.poly.asm.controller.Admin;
 
 import com.poly.asm.dao.UserRepository;
 import com.poly.asm.entity.User;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
@@ -19,13 +20,24 @@ public class UserAController {
     @Autowired
     private UserRepository userRepository;
 
-    // 📋 DANH SÁCH NGƯỜI DÙNG
+    // 📋 DANH SÁCH NGƯỜI DÙNG + LỌC THEO VAI TRÒ
     @GetMapping
-    public String listUsers(Model model,
+    public String listUsers(@RequestParam(value = "role", required = false) String role,
+                            Model model,
                             @ModelAttribute("success") String successMsg,
                             @ModelAttribute("error") String errorMsg) {
 
-        List<User> users = userRepository.findAll();
+        List<User> users;
+
+        // 🔍 Nếu có chọn vai trò thì lọc, còn không thì lấy tất cả
+        if (role != null && !role.isEmpty()) {
+            users = userRepository.findAll()
+                    .stream()
+                    .filter(u -> u.getRole() != null && u.getRole().equalsIgnoreCase(role))
+                    .collect(Collectors.toList());
+        } else {
+            users = userRepository.findAll();
+        }
 
         // Ẩn mật khẩu khi hiển thị
         List<User> safeUsers = users.stream().map(u -> {
@@ -44,12 +56,13 @@ public class UserAController {
         }).collect(Collectors.toList());
 
         model.addAttribute("users", safeUsers);
+        model.addAttribute("selectedRole", role); // ✅ để giữ lựa chọn lọc
         model.addAttribute("success", successMsg);
         model.addAttribute("error", errorMsg);
-        return "admin/user_list"; // ✅ templates/admin/user_list.html
+        return "admin/user_list";
     }
 
-    // 🔍 XEM CHI TIẾT NGƯỜI DÙNG (Chỉ xem, không chỉnh sửa)
+    // 🔍 XEM CHI TIẾT NGƯỜI DÙNG
     @GetMapping("/{id}")
     public String userDetail(@PathVariable("id") Integer id, Model model, RedirectAttributes redirect) {
         User user = userRepository.findById(id).orElse(null);
@@ -58,7 +71,7 @@ public class UserAController {
             return "redirect:/admin/users";
         }
         model.addAttribute("user", user);
-        return "admin/user_detail"; // ✅ templates/admin/user_detail.html
+        return "admin/user_detail";
     }
 
     // ❌ XÓA NGƯỜI DÙNG
@@ -87,4 +100,41 @@ public class UserAController {
         return "redirect:/admin/users";
     }
 
+    // ➕ FORM THÊM NHÂN VIÊN
+    @GetMapping("/add-staff")
+    public String showAddStaffForm(Model model) {
+        model.addAttribute("newStaff", new User());
+        return "admin/add_staff";
+    }
+
+    // ✅ XỬ LÝ THÊM NHÂN VIÊN
+    @PostMapping("/add-staff")
+    @Transactional
+    public String addStaff(@ModelAttribute("newStaff") User formUser,
+                           RedirectAttributes redirectAttributes) {
+
+        try {
+            User newUser = new User();
+            newUser.setId(null);
+            newUser.setUsername(formUser.getUsername());
+            newUser.setPassword(formUser.getPassword());
+            newUser.setFullName(formUser.getFullName());
+            newUser.setEmail(formUser.getEmail());
+            newUser.setPhone(formUser.getPhone());
+            newUser.setBirthday(formUser.getBirthday());
+            newUser.setGender(formUser.getGender());
+            newUser.setAddress(formUser.getAddress());
+            newUser.setRole("Staff");
+
+            userRepository.save(newUser);
+
+            redirectAttributes.addFlashAttribute("success", "✅ Thêm nhân viên thành công!");
+        } catch (DataIntegrityViolationException e) {
+            redirectAttributes.addFlashAttribute("error", "⚠️ Username hoặc email đã tồn tại!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "❌ Lỗi khi thêm nhân viên: " + e.getMessage());
+        }
+
+        return "redirect:/admin/users";
+    }
 }

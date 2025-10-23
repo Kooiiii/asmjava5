@@ -28,4 +28,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     // Tìm users với phân trang (tùy chọn)
     @Query("SELECT u FROM User u ORDER BY u.id DESC")
     List<User> findAllOrderByIdDesc();
+
+    @Query("SELECT MAX(u.id) FROM User u")
+    Integer findMaxId();
+
 }
