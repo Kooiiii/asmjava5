@@ -64,14 +64,27 @@ public class UserAController {
     // ❌ XÓA NGƯỜI DÙNG
     @GetMapping("/delete/{id}")
     public String deleteUser(@PathVariable("id") Integer id, RedirectAttributes redirect) {
-        try {
-            userRepository.deleteById(id);
-            redirect.addFlashAttribute("alertMessage", "Đã xóa người dùng thành công!");
-        } catch (DataIntegrityViolationException e) {
-            redirect.addFlashAttribute("alertMessage", "Không thể xóa người dùng — có dữ liệu ràng buộc (giỏ hàng, đơn hàng, v.v.)!");
-        } catch (Exception e) {
-            redirect.addFlashAttribute("alertMessage", "Đã xảy ra lỗi khi xóa người dùng!");
+        User user = userRepository.findById(id).orElse(null);
+
+        if (user == null) {
+            redirect.addFlashAttribute("alertMessage", "Không tìm thấy người dùng!");
+            return "redirect:/admin/users";
         }
+
+        // 🚫 Không cho xóa tài khoản Admin
+        if ("Admin".equalsIgnoreCase(user.getRole())) {
+            redirect.addFlashAttribute("alertMessage", "Không thể xóa tài khoản Admin!");
+            return "redirect:/admin/users";
+        }
+
+        try {
+            userRepository.delete(user);
+            redirect.addFlashAttribute("alertMessage", "Đã xóa người dùng thành công!");
+        } catch (Exception e) {
+            redirect.addFlashAttribute("alertMessage", "Không thể xóa người dùng — có dữ liệu ràng buộc!");
+        }
+
         return "redirect:/admin/users";
     }
+
 }
