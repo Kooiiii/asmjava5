@@ -8,27 +8,64 @@
         .hero {
             background: url('https://source.unsplash.com/1600x900/?fashion,shopping') center/cover no-repeat;
             height: 90vh;
-            color: white; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; text-align: center;
-            position: relative; z-index: 1; overflow: hidden;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
         }
-        .hero::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: -1; }
-        .hero h1 { font-size: 3.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
-        .btn-custom { background-color: #ff5733; color: white; padding: 12px 30px; border-radius: 30px; font-size: 1.2rem; transition: 0.3s; }
-        .btn-custom:hover { background-color: #e64a19; transform: scale(1.05); }
-        .product-card { transition: 0.3s; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
-        .product-card img { height: 300px; object-fit: cover; transition: 0.3s; }
-        .product-card:hover { transform: translateY(-10px); }
+
+        .hero::before, .overlay {
+            content: "";
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* làm chữ nổi bật trên hình */
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2; /* đảm bảo chữ và nút nằm trên overlay */
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .btn-custom {
+            background-color: #ff5733;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            transition: 0.3s;
+        }
+
+        .btn-custom:hover {
+            background-color: #e64a19;
+            transform: scale(1.05);
+        }
+
     </style>
 </head>
 <body>
 
 <div layout:fragment="content">
     <section class="hero">
-        <h1>Khám phá thế giới thời trang</h1>
-        <p>Xu hướng mới nhất, phong cách đỉnh cao</p>
-        <a href="/products" class="btn btn-custom mt-3"><i class="fa-solid fa-bag-shopping"></i> Mua ngay</a>
+        <div class="overlay"></div> <!-- lớp phủ để chữ nổi bật -->
+        <div class="hero-content">
+            <h1>Khám phá thế giới thời trang</h1>
+            <p>Xu hướng mới nhất, phong cách đỉnh cao</p>
+            <a href="/products" class="btn btn-custom mt-3"><i class="fa-solid fa-bag-shopping"></i> Mua ngay</a>
+        </div>
     </section>
+
 
     <div class="container mt-5">
         <h2 class="text-center mb-4 fw-bold"><i class="fa-solid fa-fire"></i> Sản phẩm nổi bật</h2>

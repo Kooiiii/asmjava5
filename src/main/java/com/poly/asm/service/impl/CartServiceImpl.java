@@ -89,4 +89,6 @@ public class CartServiceImpl implements CartService {
         List<CartItem> cartItems = cartItemRepository.findByCustomerId(userId);
         cartItemRepository.deleteAll(cartItems);
     }
+
+
 }
